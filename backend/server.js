@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const db = require('./models');
@@ -13,7 +14,7 @@ app.get('/about', (req, res) => {
 const demoUsersRoute = require('./routes/api/demo-users');
 app.use('/api/demo-users', demoUsersRoute);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 db.sequelize.sync().then(() => {
   app.listen(PORT, () => {
