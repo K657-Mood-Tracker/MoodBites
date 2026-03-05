@@ -25,6 +25,11 @@ volumes:
   postgres_data:
 ```
 
+## starting project
+- docker compose up -d
+- cd backend && nodemon ./server.js
+- cd ../MoodBites && npm run dev
+
 ## migrate to db
 npx sequelize-cli db:migrate
 
