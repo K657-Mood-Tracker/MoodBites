@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #a78bfa;
+  --color-brand-secondary: #c4b5fd;
+  --color-brand-soft: #ede9fe;
+  --color-brand-accent: #8759ff;
+  
+  /* Mood Pastels derived from image */
+  --color-mood-1: #fde2e4; /* Soft Pink */
+  --color-mood-2: #fad2e1; /* Soft Rose */
+  --color-mood-3: #fff1e6; /* Soft Peach */
+  --color-mood-4: #dfe7fd; /* Soft Lavender */
+  --color-mood-5: #f0efeb; /* Soft Greige */
+  --color-mood-6: #ddfff7; /* Soft Mint */
+}
+
+:root {
+  background-color: #fcfcfd;
+}
