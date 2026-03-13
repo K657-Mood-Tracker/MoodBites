@@ -14,14 +14,14 @@ function App() {
   
   // example of how to use the api
   
-  const [users, setUsers] = useState<User[]>([])
+/*   const [users, setUsers] = useState<User[]>([])
 
   useEffect(() => {
     fetch('/api/demo-users')
       .then(res => res.json())
       .then(data => setUsers(data))
       .catch(err => console.error(err))
-  }, [])
+  }, []) */
 
   return (
     <Router>
