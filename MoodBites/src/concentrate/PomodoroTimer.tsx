@@ -55,7 +55,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   };
 
   return (
-    <div className={`p-8 rounded-3xl shadow-lg text-center transition-all ${isDeepWork ? 'bg-slate-900 text-white border-2 border-purple-500' : 'bg-white text-slate-800'}`}>
+    <div className={`p-8 rounded-3xl shadow-lg text-center ${isDeepWork ? 'bg-slate-900 text-white border-2 border-purple-500' : 'bg-white text-slate-800'}`}>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold uppercase tracking-wider">{mode === "work" ? "Focus" : "Break"}</h2>
         <button 
@@ -74,13 +74,13 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
       <div className="flex justify-center gap-4">
         <button 
           onClick={toggleTimer}
-          className={`p-4 rounded-full transition-transform active:scale-95 ${isActive ? 'bg-amber-100 text-amber-600' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'}`}
+          className={`p-4 rounded-full transition-transform active:scale-95 ${isActive ? 'bg-amber-100 text-amber-600' : (isDeepWork ? 'bg-purple-600 text-white shadow-none' : 'bg-indigo-600 text-white shadow-none')}`}
         >
           {isActive ? <Pause size={24} /> : <Play size={24} fill="currentColor" />}
         </button>
         <button 
           onClick={resetTimer}
-          className="p-4 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+          className={`p-4 rounded-full transition-colors ${isDeepWork ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
         >
           <RotateCcw size={24} />
         </button>
