@@ -1,14 +1,8 @@
-import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import Header from './components/Header';
 import FocusHub from './concentrate/FocusHub';
-
-type User = {
-  id: number;
-  username: string;
-  email: string;
-}
+import Dashboard from './dashboard/Dashboard';
 
 function App() {
   
@@ -28,7 +22,7 @@ function App() {
       <div>
         <Header />
         <Routes>
-          <Route path="/" element={<div className="p-8 text-center"><h2 className="text-2xl font-bold">Dashboard Coming Soon</h2></div>} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/insights" element={<div className="p-8 text-center"><h2 className="text-2xl font-bold">Insights Coming Soon</h2></div>} />
           <Route path="/concentrate" element={<FocusHub />} />
         </Routes>
