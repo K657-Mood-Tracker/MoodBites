@@ -2,7 +2,15 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import Header from './components/Header';
 import FocusHub from './concentrate/FocusHub';
+import Insights from './insight/Insights';
 import Dashboard from './dashboard/Dashboard';
+//import test from './insight/test';
+
+type User = {
+  id: number;
+  username: string;
+  email: string;
+}
 
 function App() {
   
@@ -22,8 +30,8 @@ function App() {
       <div>
         <Header />
         <Routes>
+          <Route path="/insights" element={<Insights />} />
           <Route path="/" element={<Dashboard />} />
-          <Route path="/insights" element={<div className="p-8 text-center"><h2 className="text-2xl font-bold">Insights Coming Soon</h2></div>} />
           <Route path="/concentrate" element={<FocusHub />} />
         </Routes>
       </div>
