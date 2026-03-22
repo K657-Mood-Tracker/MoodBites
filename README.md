@@ -27,8 +27,10 @@ volumes:
 
 ## starting project
 - docker compose up -d
-- cd backend && nodemon ./server.js
-- cd ../MoodBites && npm run dev
+- cd backend && npm install
+- nodemon ./server.js
+- cd ../MoodBites && npm install
+- npm run dev
 
 ## migrate to db
 npx sequelize-cli db:migrate

@@ -23,11 +23,10 @@ const FocusHub: React.FC = () => {
     if (isDeepWork) {
       setDeepWorkMinutes(prev => prev + duration);
     }
-    // Potential for post-session notification/action here
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-1000 ${isDeepWork ? 'bg-slate-950 text-slate-100' : 'bg-indigo-50/30'}`}>
+    <div className={`min-h-screen ${isDeepWork ? 'bg-slate-950 text-slate-100' : 'bg-indigo-50/30'}`}>
       <main className="max-w-7xl mx-auto px-6 py-12">
         
         {/* Hub Header Section */}
@@ -38,73 +37,62 @@ const FocusHub: React.FC = () => {
                 <Brain size={24} />
               </div>
               <h1 className="text-4xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-                Focus <span className={isDeepWork ? "text-purple-600" : "text-indigo-600"}>Flow</span>
+                Focus <span className={isDeepWork ? "text-purple-600" : "text-indigo-600"}>Hub</span>
               </h1>
             </div>
             <p className="text-slate-500 font-medium">Step away from the noise and find your productive rhythm.</p>
           </div>
-
-          <div className="flex gap-4 p-2 bg-white/50 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm">
-             <div className="px-4 py-2 border-r border-slate-200 flex flex-col items-center">
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Today's Focus</span>
-                <span className="text-lg font-black text-indigo-600">{totalMinutes}m</span>
-             </div>
-             <div className="px-4 py-2 flex flex-col items-center">
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Current Mode</span>
-                <span className={`text-lg font-black ${isDeepWork ? 'text-purple-600' : 'text-emerald-500'}`}>{isDeepWork ? 'Deep Ultra' : 'Balanced'}</span>
-             </div>
-          </div>
         </section>
 
         {/* Focus & Productivity Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           
-          {/* Main Focus Control - LEFT */}
-          <div className="lg:col-span-4 space-y-6">
+          {/* LEFT Sidebar - Feelings & Ambience */}
+          <div className="space-y-6">
+            <MoodSelector 
+              label="Pre-Session State"
+              selectedMood={moodBefore}
+              onSelect={setMoodBefore}
+              isDeepWork={isDeepWork}
+            />
+            <MoodSelector 
+              label="After Session Feeling"
+              selectedMood={moodAfter}
+              onSelect={setMoodAfter}
+              isDeepWork={isDeepWork}
+            />
+            <BackgroundAmbience isDeepWork={isDeepWork} />
+          </div>
+
+          {/* CENTER - Primary Focus Control */}
+          <div className="space-y-6">
+            <div className={`flex gap-4 p-4 backdrop-blur-md rounded-3xl border shadow-sm justify-center ${isDeepWork ? 'bg-slate-900/80 border-slate-800' : 'bg-white/80 border-slate-100'}`}>
+               <div className={`px-6 py-2 border-r flex flex-col items-center ${isDeepWork ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <span className={`text-[10px] uppercase font-black tracking-widest leading-tight ${isDeepWork ? 'text-slate-500' : 'text-slate-400'}`}>Today's Focus</span>
+                  <span className={`text-2xl font-black leading-tight ${isDeepWork ? 'text-purple-400' : 'text-indigo-600'}`}>{totalMinutes}m</span>
+               </div>
+               <div className="px-6 py-2 flex flex-col items-center">
+                  <span className={`text-[10px] uppercase font-black tracking-widest leading-tight ${isDeepWork ? 'text-slate-500' : 'text-slate-400'}`}>Current Mode</span>
+                  <span className={`text-2xl font-black leading-tight ${isDeepWork ? 'text-purple-600' : 'text-emerald-500'}`}>{isDeepWork ? 'Deep Work' : 'Balanced'}</span>
+               </div>
+            </div>
+
             <PomodoroTimer 
               onSessionComplete={handleSessionComplete}
               isDeepWork={isDeepWork}
               setIsDeepWork={setIsDeepWork}
             />
-            
-            <BackgroundAmbience />
-            
-            <MoodSelector 
-              label="Pre-Session State"
-              selectedMood={moodBefore}
-              onSelect={setMoodBefore}
-            />
           </div>
 
-          {/* Tools & Insights - RIGHT */}
-          <div className="lg:col-span-8 flex flex-col gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[450px]">
-              <ProductivityTools />
-              <SessionStats 
-                totalMinutes={totalMinutes} 
-                deepWorkMinutes={deepWorkMinutes} 
-                tasksCompleted={0} // Placeholder for integration
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-               <MoodSelector 
-                  label="After Session Feeling"
-                  selectedMood={moodAfter}
-                  onSelect={setMoodAfter}
-                />
-                
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between h-full">
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2">Self-Reflection</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed mb-6 font-medium">How effective was your concentration today? Your post-session mood builds your long-term focus insights.</p>
-                  </div>
-                  <button className="flex items-center justify-between w-full px-6 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-black transition-all group">
-                    View Productivity Heatmap
-                    <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
-            </div>
+          {/* RIGHT Sidebar - Tasks & Performance */}
+          <div className="flex flex-col gap-6">
+            <ProductivityTools isDeepWork={isDeepWork} />
+            <SessionStats 
+              totalMinutes={totalMinutes} 
+              deepWorkMinutes={deepWorkMinutes} 
+              tasksCompleted={0} 
+              isDeepWork={isDeepWork}
+            />
           </div>
         </div>
 
