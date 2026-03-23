@@ -10,12 +10,17 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+        User.hasMany(models.Habit, { foreignKey: 'userId', onDelete: 'CASCADE' });
+        User.hasMany(models.Task, { foreignKey: 'userId', onDelete: 'CASCADE' });
+        User.hasMany(models.Reminder, { foreignKey: 'userId', onDelete: 'CASCADE' });
+        User.hasMany(models.Mood_Entry, { foreignKey: 'userId', onDelete: 'CASCADE' });
+        User.hasMany(models.Focus_Session, { foreignKey: 'userId', onDelete: 'CASCADE' });
     }
   }
   User.init({
     username: DataTypes.STRING,
-    email: DataTypes.STRING
+    email: DataTypes.STRING,
+    password_hash: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'User',
