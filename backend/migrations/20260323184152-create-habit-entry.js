@@ -9,8 +9,23 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      habitId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Habits',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
+      },
       date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      status: {
+        type: Sequelize.ENUM('completed', 'skipped'),
+        defaultValue: 'skipped',
+        allowNull: false
       },
       createdAt: {
         allowNull: false,

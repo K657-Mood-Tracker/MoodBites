@@ -22,7 +22,9 @@ module.exports = {
         type: Sequelize.STRING
       },
       score: {
-        type: Sequelize.DOUBLE
+        type: Sequelize.DOUBLE,
+        allowNull: false,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Mood_Entry.belongsTo(models.User, { foreignKey: 'userId', onDelete: 'CASCADE' });
-      Mood_Entry.hasOne(models.Mood_Type, { foreignKey: 'moodEntryId', onDelete: 'CASCADE' });
+      Mood_Entry.hasOne(models.Mood_Types, { foreignKey: 'moodEntryId', onDelete: 'CASCADE' });
       Mood_Entry.hasOne(models.Journal_Entry, { foreignKey: 'moodEntryId', onDelete: 'CASCADE' });
     }
   }
