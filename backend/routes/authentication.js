@@ -3,14 +3,12 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const app = express();
+const router = express.Router();
 const db = require('../models');
-
-app.use(express.json());
 
 // Registration
 
-app.post('/register', async (req, res) => {
+router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
@@ -33,11 +31,11 @@ app.post('/register', async (req, res) => {
 
 // Login
 
-app.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await db.user.findOne({ where: { email } });
+        const user = await db.User.findOne({ where: { email } });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email' });
         }
@@ -54,3 +52,5 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+module.exports = router;

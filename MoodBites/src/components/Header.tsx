@@ -33,14 +33,16 @@ export default function Header() {
             )}
             <div className="flex items-center gap-4">
                 {isAuthenticated ? (
-                    <div>
-                        <button onClick={logout}>Logout ({user?.username})</button>
+                    <div className="flex items-center gap-4">
                         <button className="p-2 rounded-full bg-brand-secondary/30 text-slate-600 hover:bg-brand-secondary/50 transition-all">
                         <Bell size={20} />
                         </button>
                         <Link to="/profile" className="w-10 h-10 rounded-full bg-brand-secondary/40 flex items-center justify-center text-brand-accent hover:bg-brand-secondary/60 transition-all">
                             <CircleUserRound size={28} />
                         </Link>
+                        <div className="font-bold bg-brand-secondary p-2 w-20 h-10 rounded-lg items-center justify-center text-slate-600">
+                            <button onClick={logout}>Logout</button>
+                        </div>
                     </div>
                 ) : (
                     <div className="font-bold bg-brand-secondary p-2 w-20 h-10 rounded-lg items-center justify-center text-slate-600">

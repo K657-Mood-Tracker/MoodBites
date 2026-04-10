@@ -1,9 +1,20 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
 const db = require('./models');
 const authenticateToken = require('./middlewares/verifyJWT');
+const authRoutes = require('./routes/authentication');
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
+
+app.use(express.json());
+
+app.use('/', authRoutes);
 
 app.get('/', authenticateToken(), (req, res) => {
   res.send('Hello World!');

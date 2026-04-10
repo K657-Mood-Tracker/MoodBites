@@ -6,6 +6,7 @@ import Insights from './insight/Insights';
 import Dashboard from './dashboard/Dashboard';
 import LoginScreen from './auth-screens/LoginScreen';
 import { AuthProvider } from './context/AuthContext';
+import RegisterScreen from './auth-screens/RegisterScreen';
 //import test from './insight/test';
 
 type User = {
@@ -37,6 +38,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/concentrate" element={<FocusHub />} />
             <Route path="/login" element={<LoginScreen />} />
+            <Route path="/register" element={<RegisterScreen />} />
           </Routes>
         </div>
       </Router>
