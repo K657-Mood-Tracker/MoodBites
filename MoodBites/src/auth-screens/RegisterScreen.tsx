@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { redirect, useNavigate } from "react-router-dom";
+import { Link, redirect, useNavigate } from "react-router-dom";
 
 function RegisterScreen() {
     const { login } = useAuth();
@@ -61,6 +61,14 @@ function RegisterScreen() {
                     Register
                 </button>
             </form>
+
+            <div className="p-6 max-w-md mx-auto mt-4">
+                <div className="font-bold bg-brand-secondary p-2 w-full h-md rounded-lg items-center justify-center text-slate-600">
+                    <button>
+                        <Link to="/login">Already have an account? Login here.</Link>
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }
