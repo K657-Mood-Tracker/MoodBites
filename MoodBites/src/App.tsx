@@ -4,6 +4,7 @@ import Header from './components/Header';
 import FocusHub from './concentrate/FocusHub';
 import Insights from './insight/Insights';
 import Dashboard from './dashboard/Dashboard';
+import LoginScreen from './auth-screens/LoginScreen';
 //import test from './insight/test';
 
 type User = {
@@ -33,6 +34,7 @@ function App() {
           <Route path="/insights" element={<Insights />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="/concentrate" element={<FocusHub />} />
+          <Route path="/login" element={<LoginScreen />} />
         </Routes>
       </div>
     </Router>
