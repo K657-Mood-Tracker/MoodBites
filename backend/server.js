@@ -1,18 +1,24 @@
 require('dotenv').config();
 const express = require('express');
+
 const app = express();
 const db = require('./models');
+const authenticateToken = require('./middlewares/verifyJWT');
 
-app.get('/', (req, res) => {
+app.get('/', authenticateToken(), (req, res) => {
   res.send('Hello World!');
 });
 
-app.get('/about', (req, res) => {
+app.get('/about', authenticateToken(), (req, res) => {
   res.send('This is the about page.');
 });
 
-const demoUsersRoute = require('./routes/api/demo-users');
-app.use('/api/demo-users', demoUsersRoute);
+app.post('/verify-token', authenticateToken(), (req, res) => {
+  res.json({ message: 'Token is valid', user: req.user });
+});
+
+/* const demoUsersRoute = require('./routes/api/demo-users');
+app.use('/api/demo-users', demoUsersRoute); */
 
 const PORT = process.env.PORT || 3000;
 
