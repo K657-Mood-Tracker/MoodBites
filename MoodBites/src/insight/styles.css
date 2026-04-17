@@ -20,10 +20,16 @@
   align-items: start;
 }
 
-/* RIGHT SIDE (stacked) */
+.left-top {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* RIGHT SIDE  */
 .right-top {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
@@ -42,7 +48,7 @@
   align-items: stretch;
 }
 
-/* universal card */
+
 .card,
 .calendar-card {
   height: auto;
@@ -57,22 +63,6 @@
   margin-bottom: 12px;
   font-weight: 600;
 }
-
-/*.tables-container {
-  display: flex;
-  gap: 30px;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 30px;
-  flex-wrap: wrap; /* makes it responsive */
-/*}*/
-
-/*.chart-box {
-  max-width: 600px;
-  margin: auto;
-}*/
-
-/* Make tables equal width */
 
 .mood-table-wrapper,
 .habit-table-wrapper {
