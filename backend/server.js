@@ -14,7 +14,7 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/', authRoutes);
+app.use('/api', authRoutes);
 
 app.get('/', authenticateToken(), (req, res) => {
   res.send('Hello World!');
