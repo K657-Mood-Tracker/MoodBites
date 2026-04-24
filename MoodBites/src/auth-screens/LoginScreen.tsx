@@ -10,31 +10,39 @@ function LoginScreen() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        const apiUrl = import.meta.env.VITE_BACKEND_URL;
+        //const apiUrl = import.meta.env.VITE_BACKEND_URL;
         
-        try {
-            fetch(`${apiUrl}/login`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: (document.getElementById("email") as HTMLInputElement).value,
-                    password: (document.getElementById("password") as HTMLInputElement).value
-                })
-            }).then(res => res.json())
-            .then(data => {
-                if (data.token) {
-                    login(data.token, data.user);
-                }
-                setLoading(false);
+        fetch('/api/login', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: (document.getElementById("email") as HTMLInputElement).value,
+                password: (document.getElementById("password") as HTMLInputElement).value
+            })
+        })
+        .then(async res => {
+            const data = await res.json().catch(() => null);
+
+            if (!res.ok) {
+                console.error(data);
+                throw new Error(data?.message || `HTTP ${res.status}`);
+            }
+
+            return data;
+        })
+        .then(data => {
+            if (data?.token) {
+                login(data.token, data.user);
                 navigate("/");
-            });
-        } catch (error) {
-            console.error("Login error:", error);
-            setLoading(false);
-        }
+            }
+        })
+        .catch(err => {
+            console.error("Login error:", err);
+        })
+        .finally(() => setLoading(false));
     };
 
     return (
