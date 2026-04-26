@@ -4,7 +4,7 @@ import ProductivityTools from "./ProductivityTools";
 import BackgroundAmbience from "./BackgroundAmbience";
 import SessionStats from "./SessionStats";
 import MoodSelector from "./MoodSelector";
-import { Coffee, Brain, Timer, LayoutDashboard, ChevronRight } from "lucide-react";
+import { Brain } from "lucide-react";
 
 /**
  * FocusHub is the main container for the concentration session.

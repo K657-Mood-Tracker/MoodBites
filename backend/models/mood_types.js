@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
         Mood_Types.belongsTo(models.Mood_Entry, { foreignKey: 'moodEntryId', onDelete: 'CASCADE' });
+        Mood_Types.hasOne(models.Journal_Entry, { foreignKey: 'moodTypeId', onDelete: 'CASCADE' });
     }
   }
   Mood_Types.init({

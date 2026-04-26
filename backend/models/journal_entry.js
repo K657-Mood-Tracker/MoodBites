@@ -10,15 +10,15 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Journal_Entry.belongsTo(models.Mood_Entry, { foreignKey: 'moodEntryId', onDelete: 'CASCADE' });
+      Journal_Entry.belongsTo(models.Mood_Types, { foreignKey: 'moodTypeId', onDelete: 'CASCADE' });
     }
   }
   Journal_Entry.init({
-    moodEntryId: {
+    moodTypeId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Mood_Entries',
+        model: 'Mood_Types',
         key: 'id'
       },
       onDelete: 'CASCADE'

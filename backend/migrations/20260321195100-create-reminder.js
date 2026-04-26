@@ -40,9 +40,6 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-    await queryInterface.sequelize.query(
-      'CREATE INDEX reminders_days_gin ON "Reminders" USING GIN(days)'
-    );
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Reminders');

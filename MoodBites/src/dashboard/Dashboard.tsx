@@ -38,18 +38,7 @@ const Dashboard: React.FC = () => {
   const [selectedMood, setSelectedMood] = React.useState<string | null>(null);
   const [habitList, setHabitList] = React.useState<Habit[]>([]);
 
-  const [journalEntries, setJournalEntries] = React.useState<{ [key: string]: string }>(() => {
-    const saved = localStorage.getItem('journalEntries');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return {};
-      }
-    }
-    return {};
-  });
-
+  const [journalEntries, setJournalEntries] = React.useState<{ [key: string]: string }>({});
   const [journalText, setJournalText] = React.useState('');
   const [newHabitName, setNewHabitName] = React.useState('');
   const [editHabitIndex, setEditHabitIndex] = React.useState<number | null>(null);
@@ -81,12 +70,9 @@ const Dashboard: React.FC = () => {
   }, [journalKey, journalEntries]);
 
   React.useEffect(() => {
-    localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
-  }, [journalEntries]);
-
-  React.useEffect(() => {
     loadMoodFromDB();
     loadHabitsFromDB();
+    loadJournalFromDB();
   }, []);
 
   const toggleHabit = async (habitIndex: number, dayIndex: number) => {
@@ -163,9 +149,22 @@ const Dashboard: React.FC = () => {
     setEditHabitName('');
   };
 
-  const saveJournal = () => {
-    if (!journalKey) return;
-    setJournalEntries((prev) => ({ ...prev, [journalKey]: journalText }));
+  const saveJournal = async () => {
+    if (!selectedMood || !journalText.trim()) return;
+    try {
+      const response = await fetch('http://localhost:3000/api/journal/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: journalText, mood: selectedMood }),
+      });
+      if (response.ok) {
+        // Update local state
+        const journalKey = `${selectedMood}-${today}`;
+        setJournalEntries((prev) => ({ ...prev, [journalKey]: journalText }));
+      }
+    } catch (error) {
+      console.error('Error saving journal:', error);
+    }
   };
 
   const changeQuote = () => {
@@ -237,9 +236,34 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const loadJournalFromDB = async () => {
+    try {
+      // First load the current mood
+      const moodResponse = await fetch('http://localhost:3000/api/mood/current');
+      if (moodResponse.ok) {
+        const moodData = await moodResponse.json();
+        if (moodData.mood) {
+          // Then load the journal for that mood
+          const response = await fetch(`http://localhost:3000/api/journal/current?mood=${encodeURIComponent(moodData.mood)}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.content) {
+              const journalKey = `${moodData.mood}-${today}`;
+              setJournalEntries({ [journalKey]: data.content });
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading journal:', error);
+    }
+  };
+
   const handleSelectMood = async (mood: string) => {
     setSelectedMood(mood);
     await saveMoodToDB(mood);
+    // Load journal for this mood if it exists
+    await loadJournalFromDB();
   };
 
   return (

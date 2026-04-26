@@ -6,12 +6,6 @@ import Insights from './insight/Insights';
 import Dashboard from './dashboard/Dashboard';
 //import test from './insight/test';
 
-type User = {
-  id: number;
-  username: string;
-  email: string;
-}
-
 function App() {
   
   // example of how to use the api

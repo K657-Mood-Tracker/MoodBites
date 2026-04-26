@@ -1,18 +1,27 @@
 const { Mood_Entry, Mood_Types } = require('../models');
+const { Op } = require('sequelize');
 
 const saveMood = async (req, res) => {
     try {
         const { mood } = req.body;
         const userId = 1; // Assuming demo user
-        const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const today = new Date();
+        const startOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+        const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
 
         // Check if entry already exists for today
         let moodEntry = await Mood_Entry.findOne({
-            where: { userId, date }
+            where: {
+                userId,
+                date: {
+                    [Op.gte]: startOfDay,
+                    [Op.lt]: endOfDay
+                }
+            }
         });
 
         if (!moodEntry) {
-            moodEntry = await Mood_Entry.create({ userId, date });
+            moodEntry = await Mood_Entry.create({ userId, date: today });
         }
 
         // Update or create mood type
@@ -31,15 +40,23 @@ const saveMood = async (req, res) => {
 const getMood = async (req, res) => {
     try {
         const userId = 1;
-        const date = new Date().toISOString().split('T')[0];
+        const today = new Date();
+        const startOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+        const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
 
         const moodEntry = await Mood_Entry.findOne({
-            where: { userId, date },
+            where: {
+                userId,
+                date: {
+                    [Op.gte]: startOfDay,
+                    [Op.lt]: endOfDay
+                }
+            },
             include: [{ model: Mood_Types }]
         });
 
-        if (moodEntry && moodEntry.Mood_Types) {
-            res.json({ mood: moodEntry.Mood_Types.label });
+        if (moodEntry && moodEntry.Mood_Types && moodEntry.Mood_Types.length > 0) {
+            res.json({ mood: moodEntry.Mood_Types[0].label });
         } else {
             res.json({ mood: null });
         }

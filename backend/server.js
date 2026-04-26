@@ -31,6 +31,9 @@ app.use('/api/mood', moodRoute);
 const habitsRoute = require('./routes/api/habits');
 app.use('/api/habits', habitsRoute);
 
+const journalRoute = require('./routes/api/journal');
+app.use('/api/journal', journalRoute);
+
 const PORT = process.env.PORT || 3000;
 
 db.sequelize.sync().then(() => {

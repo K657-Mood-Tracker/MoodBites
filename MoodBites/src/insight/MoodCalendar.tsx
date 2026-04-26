@@ -1,4 +1,3 @@
-import React from "react";
 import "./styles.css";
 
 type Mood = "happy" | "calm" | "neutral" | "sad" | "tired" | "angry";
