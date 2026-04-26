@@ -149,6 +149,22 @@ const Dashboard: React.FC = () => {
     setEditHabitName('');
   };
 
+  const deleteHabit = async (index: number) => {
+    const habit = habitList[index];
+    try {
+      const response = await fetch('http://localhost:3000/api/habits/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ habitId: habit.id }),
+      });
+      if (response.ok) {
+        setHabitList((prev) => prev.filter((_, i) => i !== index));
+      }
+    } catch (error) {
+      console.error('Error deleting habit:', error);
+    }
+  };
+
   const saveJournal = async () => {
     if (!selectedMood || !journalText.trim()) return;
     try {
@@ -286,6 +302,7 @@ const Dashboard: React.FC = () => {
             onSaveEdit={saveHabitEdit}
             onCancelEdit={cancelHabitEdit}
             onEditHabitNameChange={setEditHabitName}
+            onDeleteHabit={deleteHabit}
             completion={completion}
             currentDayIndex={currentDayIndex}
           />

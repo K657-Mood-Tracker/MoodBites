@@ -102,9 +102,21 @@ const updateHabit = async (req, res) => {
     }
 };
 
+const deleteHabit = async (req, res) => {
+    try {
+        const { habitId } = req.body;
+        await Habit.destroy({ where: { id: habitId } });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting habit:', error);
+        res.status(500).json({ error: 'An error occurred while deleting habit.' });
+    }
+};
+
 module.exports = {
     getHabits,
     addHabit,
     toggleHabit,
-    updateHabit
+    updateHabit,
+    deleteHabit
 };

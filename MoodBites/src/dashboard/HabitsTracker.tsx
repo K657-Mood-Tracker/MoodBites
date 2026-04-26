@@ -30,6 +30,7 @@ interface HabitsTrackerProps {
   onSaveEdit: (index: number) => void;
   onCancelEdit: () => void;
   onEditHabitNameChange: (name: string) => void;
+  onDeleteHabit: (habitIndex: number) => void;
   completion: number;
   currentDayIndex: number;
 }
@@ -46,6 +47,7 @@ const HabitsTracker: React.FC<HabitsTrackerProps> = ({
   onSaveEdit,
   onCancelEdit,
   onEditHabitNameChange,
+  onDeleteHabit,
   completion,
   currentDayIndex
 }) => {
@@ -121,6 +123,9 @@ const HabitsTracker: React.FC<HabitsTrackerProps> = ({
                           <span className="text-xs font-medium text-slate-700">{habit.name}</span>
                           <button onClick={() => onStartEdit(hIndex)} className="text-xs text-indigo-600 hover:text-indigo-800">
                             Edit
+                          </button>
+                          <button onClick={() => onDeleteHabit(hIndex)} className="text-xs text-red-600 hover:text-red-800">
+                            Delete
                           </button>
                         </div>
                       )}
