@@ -1,7 +1,18 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
+
 const app = express();
 const db = require('./models');
+const authenticateToken = require('./middlewares/verifyJWT');
+const authRoutes = require('./routes/authentication');
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
+
+app.use(express.json());
 
 app.use(express.json()); // Parse JSON bodies
 app.use((req, res, next) => {
@@ -15,15 +26,22 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
+app.use('/api', authRoutes);
+
+app.get('/', authenticateToken(), (req, res) => {
   res.send('Hello World!');
 });
 
-app.get('/about', (req, res) => {
+app.get('/about', authenticateToken(), (req, res) => {
   res.send('This is the about page.');
 });
 
-const demoUsersRoute = require('./routes/api/demo-users');
-app.use('/api/demo-users', demoUsersRoute);
+app.post('/verify-token', authenticateToken(), (req, res) => {
+  res.json({ message: 'Token is valid', user: req.user });
+});
+
+/* const demoUsersRoute = require('./routes/api/demo-users');
+app.use('/api/demo-users', demoUsersRoute); */
 
 const moodRoute = require('./routes/api/mood');
 app.use('/api/mood', moodRoute);
