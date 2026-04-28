@@ -1,4 +1,3 @@
-import React from "react";
 import "./styles.css";
 import { Smile, Zap, Coffee, AlertTriangle, Heart} from 'lucide-react';
 

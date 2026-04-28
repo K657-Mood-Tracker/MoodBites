@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE'
     },
     time: { type: DataTypes.DATE, allowNull: false },
-    repeat: { type: DataTypes.ARRAY(DataTypes.INTEGER), allowNull: false, defaultValue: [] },
+    days: { type: DataTypes.ARRAY(DataTypes.INTEGER), allowNull: false, defaultValue: [] },
     enabled: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
   }, {
     sequelize,
