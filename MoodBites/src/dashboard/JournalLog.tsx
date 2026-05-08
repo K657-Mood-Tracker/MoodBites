@@ -7,7 +7,7 @@ interface JournalLogProps {
   onJournalTextChange: (text: string) => void;
   onSaveJournal: () => Promise<void>;
   today: string;
-  journalMoodEmoji: string;
+  journalMoodImage: string | null;
 }
 
 const JournalLog: React.FC<JournalLogProps> = ({
@@ -16,7 +16,7 @@ const JournalLog: React.FC<JournalLogProps> = ({
   onJournalTextChange,
   onSaveJournal,
   today,
-  journalMoodEmoji
+  journalMoodImage
 }) => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -32,7 +32,13 @@ const JournalLog: React.FC<JournalLogProps> = ({
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-indigo-600" />
           <p className="text-sm font-bold uppercase tracking-widest text-slate-400">Journal Log</p>
-          <span className="text-base">{journalMoodEmoji}</span>
+          {journalMoodImage && (
+            <img
+              src={journalMoodImage}
+              alt={selectedMood || 'Mood'}
+              className="w-7 h-7 object-contain"
+            />
+          )}
           {selectedMood && (
             <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-semibold text-indigo-700">
               {selectedMood}

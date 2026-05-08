@@ -5,6 +5,12 @@ import MoodLog from './MoodLog';
 import HabitsTracker from './HabitsTracker';
 import JournalLog from './JournalLog';
 
+import angryImg from "../images/angry.png";
+import excitedImg from "../images/excited.png";
+import calmImg from "../images/calm.png";
+import stressedImg from "../images/stressed.png";
+import sadImg from "../images/sad.png";
+
 const habitIconMap = {
   Droplets,
   Dumbbell,
@@ -52,14 +58,14 @@ const Dashboard: React.FC = () => {
   })();
   const journalKey = selectedMood ? `${selectedMood}-${today}` : null;
 
-  const moodEmojiMap: { [mood: string]: string } = {
-    Happy: '😊',
-    Excited: '🔥',
-    Calm: '😌',
-    Stressed: '😣',
-    Sad: '😢'
+  const moodImageMap: { [mood: string]: string } = {
+    Angry: angryImg,
+    Excited: excitedImg,
+    Calm: calmImg,
+    Stressed: stressedImg,
+    Sad: sadImg
   };
-  const journalMoodEmoji = selectedMood ? moodEmojiMap[selectedMood] || '📝' : '📝';
+  const journalMoodImage = selectedMood ? moodImageMap[selectedMood]: null;
 
   React.useEffect(() => {
     if (journalKey) {
@@ -313,7 +319,7 @@ const Dashboard: React.FC = () => {
             onJournalTextChange={setJournalText}
             onSaveJournal={saveJournal}
             today={today}
-            journalMoodEmoji={journalMoodEmoji}
+            journalMoodImage={journalMoodImage}
           />
         </div>
       </main>

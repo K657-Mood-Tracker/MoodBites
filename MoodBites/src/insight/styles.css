@@ -203,6 +203,18 @@
   background: rgba(167,139,250,0.08);
 }
 
+.mood {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mood-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 /* main */
 main {
   min-height: 100vh;
