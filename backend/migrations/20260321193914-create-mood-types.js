@@ -2,23 +2,29 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('Mood_Types', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      username: {
+      moodEntryId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: 'Mood_Entries',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
+      },
+      label: {
         type: Sequelize.STRING
       },
-      email: {
-        allowNull: false,
+      hex: {
         type: Sequelize.STRING
       },
-      password_hash: {
-        allowNull: false,
+      icon_path: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -32,6 +38,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('Mood_Types');
   }
 };

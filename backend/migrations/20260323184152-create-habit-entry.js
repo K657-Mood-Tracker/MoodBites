@@ -2,24 +2,30 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('Habit_Entries', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      username: {
+      habitId: {
+        type: Sequelize.INTEGER,
         allowNull: false,
-        type: Sequelize.STRING
+        references: {
+          model: 'Habits',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
       },
-      email: {
-        allowNull: false,
-        type: Sequelize.STRING
+      date: {
+        type: Sequelize.DATE,
+        allowNull: false
       },
-      password_hash: {
-        allowNull: false,
-        type: Sequelize.STRING
+      status: {
+        type: Sequelize.ENUM('completed', 'skipped'),
+        defaultValue: 'skipped',
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -32,6 +38,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('Habit_Entries');
   }
 };

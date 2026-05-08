@@ -35,6 +35,11 @@ const moods = [
     image: sadImg
   }
 ];
+import { CheckSquare, Droplets, Dumbbell, Book, Brain } from 'lucide-react';
+import MotivationalQuote from './MotivationalQuote';
+import MoodLog from './MoodLog';
+import HabitsTracker from './HabitsTracker';
+import JournalLog from './JournalLog';
 
 
 const habitIconMap = {
@@ -52,8 +57,6 @@ const initialHabits = [
   { name: 'Meditate', days: [false, false, false, false, false, false, false], icon: 'Brain' }
 ];
 
-const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
 const quotes = [
   "The only way to do great work is to love what you do. – Steve Jobs",
   "Believe you can and you're halfway there. – Theodore Roosevelt",
@@ -62,37 +65,17 @@ const quotes = [
 ];
 
 type Habit = {
+  id: number;
   name: string;
   days: boolean[];
   icon: keyof typeof habitIconMap;
 };
 
 const Dashboard: React.FC = () => {
-  const [selectedMood, setSelectedMood] = React.useState<string | null>(() => localStorage.getItem('selectedMood'));
-  const [habitList, setHabitList] = React.useState<Habit[]>(() => {
-    const saved = localStorage.getItem('habitList');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialHabits;
-      }
-    }
-    return initialHabits;
-  });
+  const [selectedMood, setSelectedMood] = React.useState<string | null>(null);
+  const [habitList, setHabitList] = React.useState<Habit[]>([]);
 
-  const [journalEntries, setJournalEntries] = React.useState<{ [key: string]: string }>(() => {
-    const saved = localStorage.getItem('journalEntries');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return {};
-      }
-    }
-    return {};
-  });
-
+  const [journalEntries, setJournalEntries] = React.useState<{ [key: string]: string }>({});
   const [journalText, setJournalText] = React.useState('');
   const [newHabitName, setNewHabitName] = React.useState('');
   const [editHabitIndex, setEditHabitIndex] = React.useState<number | null>(null);
@@ -100,6 +83,10 @@ const Dashboard: React.FC = () => {
   const [currentQuote, setCurrentQuote] = React.useState(quotes[0]);
 
   const today = new Date().toLocaleDateString();
+  const currentDayIndex = (() => {
+    const day = new Date().getDay();
+    return day === 0 ? 6 : day - 1; // 0=Monday, 6=Sunday
+  })();
   const journalKey = selectedMood ? `${selectedMood}-${today}` : null;
 
   const moodImageMap: { [mood: string]: string } = {
@@ -123,37 +110,53 @@ const Dashboard: React.FC = () => {
   }, [journalKey, journalEntries]);
 
   React.useEffect(() => {
-    localStorage.setItem('habitList', JSON.stringify(habitList));
-  }, [habitList]);
+    loadMoodFromDB();
+    loadHabitsFromDB();
+    loadJournalFromDB();
+  }, []);
 
-  React.useEffect(() => {
-    localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
-  }, [journalEntries]);
-
-  React.useEffect(() => {
-    if (selectedMood) {
-      localStorage.setItem('selectedMood', selectedMood);
-    } else {
-      localStorage.removeItem('selectedMood');
+  const toggleHabit = async (habitIndex: number, dayIndex: number) => {
+    if (dayIndex !== currentDayIndex) return; // Only allow today
+    const habit = habitList[habitIndex];
+    try {
+      const response = await fetch('http://localhost:3000/api/habits/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ habitId: habit.id }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setHabitList((prev) => {
+          const next = [...prev];
+          const days = [...next[habitIndex].days];
+          days[dayIndex] = data.status === 'completed';
+          next[habitIndex] = { ...next[habitIndex], days };
+          return next;
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling habit:', error);
     }
-  }, [selectedMood]);
-
-  const toggleHabit = (habitIndex: number, dayIndex: number) => {
-    setHabitList((prev) => {
-      const next = [...prev];
-      const days = [...next[habitIndex].days];
-      days[dayIndex] = !days[dayIndex];
-      next[habitIndex] = { ...next[habitIndex], days };
-      return next;
-    });
   };
 
-  const addHabit = () => {
+  const addHabit = async () => {
     const name = newHabitName.trim();
     if (!name) return;
     if (habitList.some((h) => h.name.toLowerCase() === name.toLowerCase())) return;
-    setHabitList((prev) => [...prev, { name, days: [false, false, false, false, false, false, false], icon: 'CheckSquare' }] as Habit[]);
-    setNewHabitName('');
+    try {
+      const response = await fetch('http://localhost:3000/api/habits/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (response.ok) {
+        const newHabit = await response.json();
+        setHabitList((prev) => [...prev, newHabit]);
+        setNewHabitName('');
+      }
+    } catch (error) {
+      console.error('Error adding habit:', error);
+    }
   };
 
   const startEditingHabit = (index: number) => {
@@ -161,12 +164,24 @@ const Dashboard: React.FC = () => {
     setEditHabitName(habitList[index].name);
   };
 
-  const saveHabitEdit = (index: number) => {
+  const saveHabitEdit = async (index: number) => {
     const trimmed = editHabitName.trim();
     if (!trimmed) return;
-    setHabitList((prev) => prev.map((h, i) => (i === index ? { ...h, name: trimmed } : h)));
-    setEditHabitIndex(null);
-    setEditHabitName('');
+    const habit = habitList[index];
+    try {
+      const response = await fetch('http://localhost:3000/api/habits/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ habitId: habit.id, name: trimmed }),
+      });
+      if (response.ok) {
+        setHabitList((prev) => prev.map((h, i) => (i === index ? { ...h, name: trimmed } : h)));
+        setEditHabitIndex(null);
+        setEditHabitName('');
+      }
+    } catch (error) {
+      console.error('Error updating habit:', error);
+    }
   };
 
   const cancelHabitEdit = () => {
@@ -174,9 +189,38 @@ const Dashboard: React.FC = () => {
     setEditHabitName('');
   };
 
-  const saveJournal = () => {
-    if (!journalKey) return;
-    setJournalEntries((prev) => ({ ...prev, [journalKey]: journalText }));
+  const deleteHabit = async (index: number) => {
+    const habit = habitList[index];
+    try {
+      const response = await fetch('http://localhost:3000/api/habits/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ habitId: habit.id }),
+      });
+      if (response.ok) {
+        setHabitList((prev) => prev.filter((_, i) => i !== index));
+      }
+    } catch (error) {
+      console.error('Error deleting habit:', error);
+    }
+  };
+
+  const saveJournal = async () => {
+    if (!selectedMood || !journalText.trim()) return;
+    try {
+      const response = await fetch('http://localhost:3000/api/journal/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: journalText, mood: selectedMood }),
+      });
+      if (response.ok) {
+        // Update local state
+        const journalKey = `${selectedMood}-${today}`;
+        setJournalEntries((prev) => ({ ...prev, [journalKey]: journalText }));
+      }
+    } catch (error) {
+      console.error('Error saving journal:', error);
+    }
   };
 
   const changeQuote = () => {
@@ -228,118 +272,101 @@ const Dashboard: React.FC = () => {
             })}
           </div>
         </section>
+  const saveMoodToDB = async (mood: string) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/mood/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mood }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save mood');
+      }
+    } catch (error) {
+      console.error('Error saving mood:', error);
+    }
+  };
 
-        <section className="bg-gradient-to-r from-indigo-50 via-white to-emerald-50 rounded-3xl border border-slate-200 p-6 shadow-sm mb-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-3">
-              <Quote className="w-6 h-6 text-indigo-500 mt-1" />
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Motivational Quote</p>
-                <p className="mt-2 text-lg font-medium text-indigo-800 italic leading-relaxed max-w-3xl">
-                  "{currentQuote}"
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={changeQuote}
-              className="mt-2 rounded-lg border border-indigo-200 bg-indigo-100 px-3 py-2 text-xs font-semibold text-indigo-700 shadow-sm hover:bg-indigo-200 hover:shadow-md transition sm:mt-0"
-            >
-              Next Quote
-            </button>
-          </div>
-        </section>
+  const loadMoodFromDB = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/mood/current');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.mood) {
+          setSelectedMood(data.mood);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading mood:', error);
+    }
+  };
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <CheckSquare className="w-5 h-5 text-indigo-600" />
-                <p className="text-sm font-bold uppercase tracking-widest text-slate-400">Habit Tracker</p>
-              </div>
-              <span className="text-xs font-semibold text-slate-500">{completion}% done</span>
-            </div>
+  const seedHabitsToDB = async () => {
+    try {
+      for (const habit of initialHabits) {
+        await fetch('http://localhost:3000/api/habits/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: habit.name }),
+        });
+      }
+    } catch (error) {
+      console.error('Error seeding habits:', error);
+    }
+  };
 
-            <div className="flex gap-2 mb-4">
-              <input
-                type="text"
-                value={newHabitName}
-                onChange={(e) => setNewHabitName(e.target.value)}
-                placeholder="New habit name"
-                className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-              />
-              <button
-                onClick={addHabit}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-              >
-                Add
-              </button>
-            </div>
+  const loadHabitsFromDB = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/habits');
+      if (response.ok) {
+        const habits = await response.json();
+        if (habits.length === 0) {
+          await seedHabitsToDB();
+          return loadHabitsFromDB();
+        }
+        setHabitList(habits);
+      }
+    } catch (error) {
+      console.error('Error loading habits:', error);
+    }
+  };
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 text-slate-500">
-                  <tr>
-                    <th className="p-2">Habit</th>
-                    {daysOfWeek.map((day) => (
-                      <th key={day} className="p-2 text-center">{day}</th>
-                    ))}
-                    <th className="p-2 text-center">Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {habitList.map((habit, hIndex) => {
-                    const completedCount = habit.days.filter(Boolean).length;
-                    const face = completedCount === 0 ? '😞' : completedCount <= 2 ? '😐' : completedCount <= 4 ? '🙂' : completedCount <= 6 ? '😄' : '🏆';
-                    const isEditing = editHabitIndex === hIndex;
-                    return (
-                      <tr key={`${habit.name}-${hIndex}`} className="border-t border-slate-100 hover:bg-slate-50">
-                        <td className="p-2 align-middle">
-                          <div className="flex items-center gap-2">
-                            {habitIconMap[habit.icon] && React.createElement(habitIconMap[habit.icon], { className: 'h-4 w-4 text-slate-500' })}
-                            {isEditing ? (
-                              <div className="flex items-center gap-2">
-                                <input
-                                  value={editHabitName}
-                                  onChange={(e) => setEditHabitName(e.target.value)}
-                                  className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                                />
-                                <button onClick={() => saveHabitEdit(hIndex)} className="text-xs text-indigo-600 hover:text-indigo-800">
-                                  Save
-                                </button>
-                                <button onClick={cancelHabitEdit} className="text-xs text-slate-400 hover:text-slate-600">
-                                  Cancel
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-slate-700">{habit.name}</span>
-                                <button onClick={() => startEditingHabit(hIndex)} className="text-xs text-indigo-600 hover:text-indigo-800">
-                                  Edit
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </td>
+  const loadJournalFromDB = async () => {
+    try {
+      // First load the current mood
+      const moodResponse = await fetch('http://localhost:3000/api/mood/current');
+      if (moodResponse.ok) {
+        const moodData = await moodResponse.json();
+        if (moodData.mood) {
+          // Then load the journal for that mood
+          const response = await fetch(`http://localhost:3000/api/journal/current?mood=${encodeURIComponent(moodData.mood)}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.content) {
+              const journalKey = `${moodData.mood}-${today}`;
+              setJournalEntries({ [journalKey]: data.content });
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading journal:', error);
+    }
+  };
 
-                        {habit.days.map((done, dayIndex) => (
-                          <td key={dayIndex} className="p-2 text-center">
-                            <button
-                              onClick={() => toggleHabit(hIndex, dayIndex)}
-                              className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition ${done ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500 hover:bg-slate-300'}`}
-                            >
-                              {done ? '✓' : ''}
-                            </button>
-                          </td>
-                        ))}
+  const handleSelectMood = async (mood: string) => {
+    setSelectedMood(mood);
+    await saveMoodToDB(mood);
+    // Load journal for this mood if it exists
+    await loadJournalFromDB();
+  };
 
-                        <td className="p-2 text-center">{face}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-100 via-white to-slate-100 text-slate-800">
+      <main className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+        <MoodLog selectedMood={selectedMood} onSelectMood={handleSelectMood} completion={completion} />
 
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
@@ -361,26 +388,34 @@ const Dashboard: React.FC = () => {
               </div>
               <span className="text-xs font-semibold text-slate-500">{today}</span>
             </div>
+        <MotivationalQuote currentQuote={currentQuote} onChangeQuote={changeQuote} />
 
-            {selectedMood ? (
-              <>
-                <textarea
-                  value={journalText}
-                  onChange={(e) => setJournalText(e.target.value)}
-                  placeholder="Write your reflection for today..."
-                  className="h-36 w-full rounded-xl border border-slate-200 p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                />
-                <button
-                  onClick={saveJournal}
-                  className="mt-4 w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-                >
-                  Save Entry
-                </button>
-              </>
-            ) : (
-              <p className="text-sm text-slate-500">Select your mood first to log a journal entry.</p>
-            )}
-          </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <HabitsTracker
+            habitList={habitList}
+            onToggleHabit={toggleHabit}
+            onAddHabit={addHabit}
+            newHabitName={newHabitName}
+            onNewHabitNameChange={setNewHabitName}
+            editHabitIndex={editHabitIndex}
+            editHabitName={editHabitName}
+            onStartEdit={startEditingHabit}
+            onSaveEdit={saveHabitEdit}
+            onCancelEdit={cancelHabitEdit}
+            onEditHabitNameChange={setEditHabitName}
+            onDeleteHabit={deleteHabit}
+            completion={completion}
+            currentDayIndex={currentDayIndex}
+          />
+
+          <JournalLog
+            selectedMood={selectedMood}
+            journalText={journalText}
+            onJournalTextChange={setJournalText}
+            onSaveJournal={saveJournal}
+            today={today}
+            journalMoodEmoji={journalMoodEmoji}
+          />
         </div>
       </main>
     </div>
