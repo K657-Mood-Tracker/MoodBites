@@ -1,13 +1,41 @@
 ﻿import React from 'react';
 import { Smile, Zap, Coffee, AlertTriangle, Heart, CheckSquare, BookOpen, Quote, Droplets, Dumbbell, Book, Brain } from 'lucide-react';
 
+import angryImg from "../images/angry.png";
+import excitedImg from "../images/excited.png";
+import calmImg from "../images/calm.png";
+import stressedImg from "../images/stressed.png";
+import sadImg from "../images/sad.png";
+
+
 const moods = [
-  { name: 'Happy', color: 'from-emerald-100 to-emerald-200 text-emerald-900', icon: Smile },
-  { name: 'Excited', color: 'from-amber-100 to-amber-200 text-amber-900', icon: Zap },
-  { name: 'Calm', color: 'from-orange-100 to-orange-200 text-orange-900', icon: Coffee },
-  { name: 'Stressed', color: 'from-rose-100 to-rose-200 text-rose-900', icon: AlertTriangle },
-  { name: 'Sad', color: 'from-fuchsia-100 to-fuchsia-200 text-fuchsia-900', icon: Heart }
+  {
+    name: 'Angry',
+    color: 'from-emerald-100 to-emerald-200 text-emerald-900',
+    image: angryImg
+  },
+  {
+    name: 'Excited',
+    color: 'from-amber-100 to-amber-200 text-amber-900',
+    image: excitedImg
+  },
+  {
+    name: 'Calm',
+    color: 'from-orange-100 to-orange-200 text-orange-900',
+    image: calmImg
+  },
+  {
+    name: 'Stressed',
+    color: 'from-rose-100 to-rose-200 text-rose-900',
+    image: stressedImg
+  },
+  {
+    name: 'Sad',
+    color: 'from-fuchsia-100 to-fuchsia-200 text-fuchsia-900',
+    image: sadImg
+  }
 ];
+
 
 const habitIconMap = {
   Droplets,
@@ -74,14 +102,17 @@ const Dashboard: React.FC = () => {
   const today = new Date().toLocaleDateString();
   const journalKey = selectedMood ? `${selectedMood}-${today}` : null;
 
-  const moodEmojiMap: { [mood: string]: string } = {
-    Happy: '😊',
-    Excited: '🔥',
-    Calm: '😌',
-    Stressed: '😣',
-    Sad: '😢'
+  const moodImageMap: { [mood: string]: string } = {
+    Angry: angryImg,
+    Excited: excitedImg,
+    Calm: calmImg,
+    Stressed: stressedImg,
+    Sad: sadImg
   };
-  const journalMoodEmoji = selectedMood ? moodEmojiMap[selectedMood] || '📝' : '📝';
+
+  const journalMoodImage = selectedMood
+    ? moodImageMap[selectedMood]
+    : null;
 
   React.useEffect(() => {
     if (journalKey) {
@@ -174,15 +205,24 @@ const Dashboard: React.FC = () => {
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
             {moods.map((mood) => {
               const active = selectedMood === mood.name;
-              const Icon = mood.icon;
+              //const Icon = mood.icon;
               return (
                 <button
                   key={mood.name}
                   onClick={() => setSelectedMood(mood.name)}
-                  className={`flex items-center justify-center gap-2 rounded-2xl border px-4 py-4 text-lg font-bold transition ${active ? 'border-indigo-500 bg-indigo-100 text-indigo-900 shadow-lg' : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50'}`}
+                  className={`flex items-center justify-center gap-3 rounded-2xl border px-4 py-4 text-lg font-bold transition ${
+                    active
+                      ? 'border-indigo-500 bg-indigo-100 text-indigo-900 shadow-lg'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50'
+                  }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  {mood.name}
+                  <img
+                    src={mood.image}
+                    alt={mood.name}
+                    className="w-8 h-8 object-contain"
+                  />
+
+                  <span>{mood.name}</span>
                 </button>
               );
             })}
@@ -306,7 +346,13 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-indigo-600" />
                 <p className="text-sm font-bold uppercase tracking-widest text-slate-400">Journal Log</p>
-                <span className="text-base">{journalMoodEmoji}</span>
+                {journalMoodImage && (
+                  <img
+                    src={journalMoodImage}
+                    alt={selectedMood || 'Mood'}
+                    className="w-7 h-7 object-contain"
+                  />
+                )}
                 {selectedMood && (
                   <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-semibold text-indigo-700">
                     {selectedMood}
