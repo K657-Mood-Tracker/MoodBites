@@ -1,9 +1,46 @@
 ﻿import React from 'react';
+import { Smile, Zap, Coffee, AlertTriangle, Heart, CheckSquare, BookOpen, Quote, Droplets, Dumbbell, Book, Brain } from 'lucide-react';
+
+import angryImg from "../images/angry.png";
+import excitedImg from "../images/excited.png";
+import calmImg from "../images/calm.png";
+import stressedImg from "../images/stressed.png";
+import sadImg from "../images/sad.png";
+
+
+const moods = [
+  {
+    name: 'Angry',
+    color: 'from-emerald-100 to-emerald-200 text-emerald-900',
+    image: angryImg
+  },
+  {
+    name: 'Excited',
+    color: 'from-amber-100 to-amber-200 text-amber-900',
+    image: excitedImg
+  },
+  {
+    name: 'Calm',
+    color: 'from-orange-100 to-orange-200 text-orange-900',
+    image: calmImg
+  },
+  {
+    name: 'Stressed',
+    color: 'from-rose-100 to-rose-200 text-rose-900',
+    image: stressedImg
+  },
+  {
+    name: 'Sad',
+    color: 'from-fuchsia-100 to-fuchsia-200 text-fuchsia-900',
+    image: sadImg
+  }
+];
 import { CheckSquare, Droplets, Dumbbell, Book, Brain } from 'lucide-react';
 import MotivationalQuote from './MotivationalQuote';
 import MoodLog from './MoodLog';
 import HabitsTracker from './HabitsTracker';
 import JournalLog from './JournalLog';
+
 
 const habitIconMap = {
   Droplets,
@@ -52,14 +89,17 @@ const Dashboard: React.FC = () => {
   })();
   const journalKey = selectedMood ? `${selectedMood}-${today}` : null;
 
-  const moodEmojiMap: { [mood: string]: string } = {
-    Happy: '😊',
-    Excited: '🔥',
-    Calm: '😌',
-    Stressed: '😣',
-    Sad: '😢'
+  const moodImageMap: { [mood: string]: string } = {
+    Angry: angryImg,
+    Excited: excitedImg,
+    Calm: calmImg,
+    Stressed: stressedImg,
+    Sad: sadImg
   };
-  const journalMoodEmoji = selectedMood ? moodEmojiMap[selectedMood] || '📝' : '📝';
+
+  const journalMoodImage = selectedMood
+    ? moodImageMap[selectedMood]
+    : null;
 
   React.useEffect(() => {
     if (journalKey) {
@@ -191,6 +231,47 @@ const Dashboard: React.FC = () => {
   const totalDone = habitList.reduce((acc, habit) => acc + habit.days.filter(Boolean).length, 0);
   const completion = habitList.length ? Math.round((totalDone / (habitList.length * 7)) * 100) : 0;
 
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-100 via-white to-slate-100 text-slate-800">
+      <main className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+        <section className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200 mb-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h1 className="text-4xl font-black tracking-tight text-slate-900 text-left">Heyy, Alex! How are you feeling today?</h1>
+              <p className="mt-2 text-lg text-left font-medium text-slate-500">Pick a flavor that matches your mood</p>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-2 shadow-sm">
+              <span className="text-xs uppercase tracking-widest text-slate-400">Overall completion</span>
+              <span className="text-lg font-bold text-indigo-600">{completion}%</span>
+            </div>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+            {moods.map((mood) => {
+              const active = selectedMood === mood.name;
+              //const Icon = mood.icon;
+              return (
+                <button
+                  key={mood.name}
+                  onClick={() => setSelectedMood(mood.name)}
+                  className={`flex items-center justify-center gap-3 rounded-2xl border px-4 py-4 text-lg font-bold transition ${
+                    active
+                      ? 'border-indigo-500 bg-indigo-100 text-indigo-900 shadow-lg'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50'
+                  }`}
+                >
+                  <img
+                    src={mood.image}
+                    alt={mood.name}
+                    className="w-8 h-8 object-contain"
+                  />
+
+                  <span>{mood.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
   const saveMoodToDB = async (mood: string) => {
     try {
       const response = await fetch('http://localhost:3000/api/mood/save', {
@@ -287,6 +368,26 @@ const Dashboard: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
         <MoodLog selectedMood={selectedMood} onSelectMood={handleSelectMood} completion={completion} />
 
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-indigo-600" />
+                <p className="text-sm font-bold uppercase tracking-widest text-slate-400">Journal Log</p>
+                {journalMoodImage && (
+                  <img
+                    src={journalMoodImage}
+                    alt={selectedMood || 'Mood'}
+                    className="w-7 h-7 object-contain"
+                  />
+                )}
+                {selectedMood && (
+                  <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-semibold text-indigo-700">
+                    {selectedMood}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs font-semibold text-slate-500">{today}</span>
+            </div>
         <MotivationalQuote currentQuote={currentQuote} onChangeQuote={changeQuote} />
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
