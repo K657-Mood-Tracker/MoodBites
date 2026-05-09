@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import './App.css'
 import Header from './components/Header';
 import FocusHub from './concentrate/FocusHub';
@@ -8,6 +8,7 @@ import LoginScreen from './auth-screens/LoginScreen';
 import { AuthProvider } from './context/AuthContext';
 import RegisterScreen from './auth-screens/RegisterScreen';
 import { useAuth } from './context/AuthContext';
+import LandingPage from './LandingPage';
 //import test from './insight/test';
 
 type User = {
@@ -23,12 +24,7 @@ const RootRedirect = () => {
     return <Dashboard />;
   } 
 
-  return (
-    <div className="flex justify-center items-center mt-20 flex-col">
-      <h1 className="text-3xl font-black mb-4">Welcome to MoodBites!</h1>
-      <p>Please <a href="/login" className="text-brand-accent underline">Login</a> or <a href="/register" className="text-brand-accent underline">Register</a> to see your dashboard.</p>
-    </div>
-  )
+  return <LandingPage />;
 }
 
 function App() {
@@ -47,19 +43,28 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div>
-          <Header />
-          <Routes>
-            <Route path="/insights" element={<Insights />} />
-            <Route path="/" element={<RootRedirect />} />
-            <Route path="/concentrate" element={<FocusHub />} />
-            <Route path="/login" element={<LoginScreen />} />
-            <Route path="/register" element={<RegisterScreen />} />
-          </Routes>
-        </div>
+        <AppRoutes />
       </Router>
     </AuthProvider>
   )
+}
+
+function AppRoutes() {
+  const location = useLocation();
+  const showHeader = location.pathname !== '/';
+
+  return (
+    <div>
+      {showHeader && <Header />}
+      <Routes>
+        <Route path="/insights" element={<Insights />} />
+        <Route path="/" element={<RootRedirect />} />
+        <Route path="/concentrate" element={<FocusHub />} />
+        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/register" element={<RegisterScreen />} />
+      </Routes>
+    </div>
+  );
 }
 
 export default App
