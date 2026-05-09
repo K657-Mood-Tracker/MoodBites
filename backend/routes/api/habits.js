@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const habitController = require('../../controllers/habitController');
+const authenticateToken = require('../../middlewares/verifyJWT');
 
-router.get('/', habitController.getHabits);
-router.post('/add', habitController.addHabit);
-router.post('/toggle', habitController.toggleHabit);
-router.put('/update', habitController.updateHabit);
-router.delete('/delete', habitController.deleteHabit);
+router.get('/', authenticateToken(), habitController.getHabits);
+router.post('/add', authenticateToken(), habitController.addHabit);
+router.post('/toggle', authenticateToken(), habitController.toggleHabit);
+router.put('/update', authenticateToken(), habitController.updateHabit);
+router.delete('/delete', authenticateToken(), habitController.deleteHabit);
 
 module.exports = router;

@@ -85,9 +85,13 @@ const Dashboard: React.FC = () => {
     if (dayIndex !== currentDayIndex) return; // Only allow today
     const habit = habitList[habitIndex];
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/habits/toggle', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ habitId: habit.id }),
       });
       if (response.ok) {
@@ -110,9 +114,13 @@ const Dashboard: React.FC = () => {
     if (!name) return;
     if (habitList.some((h) => h.name.toLowerCase() === name.toLowerCase())) return;
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/habits/add', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ name }),
       });
       if (response.ok) {
@@ -135,9 +143,13 @@ const Dashboard: React.FC = () => {
     if (!trimmed) return;
     const habit = habitList[index];
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/habits/update', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ habitId: habit.id, name: trimmed }),
       });
       if (response.ok) {
@@ -158,9 +170,13 @@ const Dashboard: React.FC = () => {
   const deleteHabit = async (index: number) => {
     const habit = habitList[index];
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/habits/delete', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ habitId: habit.id }),
       });
       if (response.ok) {
@@ -230,10 +246,14 @@ const Dashboard: React.FC = () => {
 
   const seedHabitsToDB = async () => {
     try {
+      const token = localStorage.getItem('token');
       for (const habit of initialHabits) {
         await fetch('http://localhost:3000/api/habits/add', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ name: habit.name }),
         });
       }
@@ -244,7 +264,13 @@ const Dashboard: React.FC = () => {
 
   const loadHabitsFromDB = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/habits');
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/api/habits', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) {
         const habits = await response.json();
         if (habits.length === 0) {

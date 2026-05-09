@@ -1,20 +1,8 @@
 const { Habit, Habit_Entry, User } = require('../models');
 
-const getDemoUser = async () => {
-    const [user] = await User.findOrCreate({
-        where: { email: 'demo@moodbites.local' },
-        defaults: {
-            username: 'Demo User',
-            email: 'demo@moodbites.local'
-        }
-    });
-    return user;
-};
-
 const getHabits = async (req, res) => {
     try {
-        const user = await getDemoUser();
-        const userId = user.id;
+        const userId = req.user.id;
         const habits = await Habit.findAll({
             where: { userId },
             include: [{
@@ -55,8 +43,8 @@ const getHabits = async (req, res) => {
 const addHabit = async (req, res) => {
     try {
         const { name } = req.body;
-        const user = await getDemoUser();
-        const habit = await Habit.create({ userId: user.id, title: name, score: 0 });
+        const userId = req.user.id;
+        const habit = await Habit.create({ userId, title: name, score: 0 });
         res.json({ id: habit.id, name: habit.title, days: [false, false, false, false, false, false, false], icon: 'CheckSquare' });
     } catch (error) {
         console.error('Error adding habit:', error);
@@ -67,8 +55,14 @@ const addHabit = async (req, res) => {
 const toggleHabit = async (req, res) => {
     try {
         const { habitId } = req.body;
-        const user = await getDemoUser();
+        const userId = req.user.id;
         const date = new Date().toISOString().split('T')[0];
+
+        // Verify the habit belongs to the user
+        const habit = await Habit.findOne({ where: { id: habitId, userId } });
+        if (!habit) {
+            return res.status(403).json({ error: 'Habit not found or access denied.' });
+        }
 
         // Check if entry exists
         let entry = await Habit_Entry.findOne({
@@ -94,6 +88,14 @@ const toggleHabit = async (req, res) => {
 const updateHabit = async (req, res) => {
     try {
         const { habitId, name } = req.body;
+        const userId = req.user.id;
+
+        // Verify the habit belongs to the user
+        const habit = await Habit.findOne({ where: { id: habitId, userId } });
+        if (!habit) {
+            return res.status(403).json({ error: 'Habit not found or access denied.' });
+        }
+
         await Habit.update({ title: name }, { where: { id: habitId } });
         res.json({ success: true });
     } catch (error) {
@@ -105,6 +107,14 @@ const updateHabit = async (req, res) => {
 const deleteHabit = async (req, res) => {
     try {
         const { habitId } = req.body;
+        const userId = req.user.id;
+
+        // Verify the habit belongs to the user
+        const habit = await Habit.findOne({ where: { id: habitId, userId } });
+        if (!habit) {
+            return res.status(403).json({ error: 'Habit not found or access denied.' });
+        }
+
         await Habit.destroy({ where: { id: habitId } });
         res.json({ success: true });
     } catch (error) {
