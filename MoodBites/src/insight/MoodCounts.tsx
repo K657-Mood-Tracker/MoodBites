@@ -1,22 +1,51 @@
 import "./styles.css";
-import angryImg from "../images/angry.png";
-import excitedImg from "../images/excited.png";
-import calmImg from "../images/calm.png";
-import stressedImg from "../images/stressed.png";
-import sadImg from "../images/sad.png";
+import { TrendingUp, TrendingDown } from "lucide-react";
+import angryImage from "../images/angry.png";
+import calmImage from "../images/calm.png";
+import excitedImage from "../images/excited.png";
+import sadImage from "../images/sad.png";
+import stressedImage from "../images/stressed.png";
 
 type MoodEntry = {
   mood: "happy" | "calm" | "neutral" | "sad" | "tired" | "angry";
   date: string;
 };
 
+type MoodItem = {
+  key: string;
+  label: string;
+  image: string;
+  color: string;
+  borderColor: string;
+};
+
+const moodTips: Record<string, string> = {
+  happy: "Great energy — keep the good habits going.",
+  calm: "Your calm rhythm is balanced today.",
+  sad: "Try a short break or gratitude note.",
+  angry: "A little breathing can help reset your day.",
+  tired: "Rest sharper focus with a lighter schedule."
+};
+
+const moodImages: Record<string, string> = {
+  happy: excitedImage,
+  calm: calmImage,
+  sad: sadImage,
+  angry: angryImage,
+  tired: stressedImage
+};
+
 const moodLog: MoodEntry[] = [
   { mood: "happy", date: "2026-04-10" },
-  { mood: "happy", date: "2026-03-11" },
-  { mood: "sad", date: "2026-04-09" },
-  { mood: "calm", date: "2026-03-08" },
-  { mood: "tired", date: "2026-03-07" },
-  { mood: "happy", date: "2026-03-01" }
+  { mood: "happy", date: "2026-04-09" },
+  { mood: "calm", date: "2026-04-08" },
+  { mood: "sad", date: "2026-04-07" },
+  { mood: "calm", date: "2026-04-06" },
+  { mood: "happy", date: "2026-04-05" },
+  { mood: "tired", date: "2026-04-04" },
+  { mood: "calm", date: "2026-04-03" },
+  { mood: "happy", date: "2026-04-02" },
+  { mood: "calm", date: "2026-04-01" }
 ];
 
 function countMoods(moods: MoodEntry[]) {
@@ -49,51 +78,61 @@ function countMoods(moods: MoodEntry[]) {
 export default function MoodStatsTable() {
   const { weekCounts, monthCounts } = countMoods(moodLog);
 
-  const moods = [
-    // { key:"happy", name: 'Happy', color: 'from-emerald-100 to-emerald-200 text-emerald-900', icon: Smile },
-    // { key: "Excited", name: 'Excited', color: 'from-amber-100 to-amber-200 text-amber-900', icon: Zap },
-    // { key: "calm", name: 'Calm', color: 'from-orange-100 to-orange-200 text-orange-900', icon: Coffee },
-    // { key: "Stressed", name: 'Stressed', color: 'from-rose-100 to-rose-200 text-rose-900', icon: AlertTriangle },
-    // { key: "sad", name: 'Sad', color: 'from-fuchsia-100 to-fuchsia-200 text-fuchsia-900', icon: Heart }
-    { key: "calm", label: "Calm", image: calmImg, class: "mood-6" },
-    { key: "Excited", label: "Excited", image: excitedImg, class: "mood-3" },
-    { key: "angry", label: "Angry", image: angryImg, class: "mood-2" },
-    { key: "Stressed", label: "Stressed", image: stressedImg, class: "mood-1" },
-    { key: "sad", label: "Sad", image: sadImg, class: "mood-4" }
-    //{ key: "tired", label: "😴 Tired", class: "mood-5" },
-    //{ key: "angry", label: "😠 Angry", class: "mood-2" }
+  const moods: MoodItem[] = [
+    { key: "happy", label: "Happy", image: moodImages.happy, color: "bg-yellow-100", borderColor: "border-yellow-300" },
+    { key: "calm", label: "Calm", image: moodImages.calm, color: "bg-emerald-100", borderColor: "border-emerald-300" },
+    { key: "sad", label: "Sad", image: moodImages.sad, color: "bg-blue-100", borderColor: "border-blue-300" },
+    { key: "angry", label: "Angry", image: moodImages.angry, color: "bg-red-100", borderColor: "border-red-300" },
+    { key: "tired", label: "Tired", image: moodImages.tired, color: "bg-slate-100", borderColor: "border-slate-300" }
   ];
 
+  const sortedMoods = [...moods].sort((a, b) => (weekCounts[b.key] || 0) - (weekCounts[a.key] || 0));
+  const totalWeek = Object.values(weekCounts).reduce((sum, value) => sum + value, 0);
+  const primaryMood = sortedMoods[0];
+  const primaryText = totalWeek > 0 ? `Most frequent this week: ${primaryMood.label}` : "No mood data yet.";
+
+  const getDaysTrend = (key: string) => {
+    const week = weekCounts[key] || 0;
+    const month = monthCounts[key] || 0;
+    return month > 0 ? ((week - (month / 4)) / (month / 4)) * 100 : 0;
+  };
+
   return (
-    <div className="mood-table-wrapper">
-      <h2>Mood Statistics</h2>
-
-      <table className="mood-table">
-        <thead>
-          <tr>
-            <th>Mood</th>
-            <th>This Week</th>
-            <th>This Month</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {moods.map((m) => (
-            <tr key={m.key}>
-              <td className={`mood ${m.class}`}>
-                <img
-                  src={m.image}
-                  alt={m.label}
-                  className="mood-icon"
-                />
-                <span>{m.label}</span>
-              </td>
-              <td>{weekCounts[m.key] || 0}</td>
-              <td>{monthCounts[m.key] || 0}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="mood-stats-container">
+      <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 mb-4">
+        <p className="text-xs uppercase tracking-widest text-slate-400 mb-1">Mood insight</p>
+        <p className="text-sm text-slate-900 font-semibold">{primaryText}</p>
+        <p className="text-xs text-slate-500">Total mood entries tracked this week: {totalWeek}</p>
+      </div>
+      <div className="grid grid-cols-1 gap-3">
+        {sortedMoods.map((m) => {
+          const week = weekCounts[m.key] || 0;
+          const trend = getDaysTrend(m.key);
+          const isPositive = trend >= 0;
+          
+          return (
+            <div key={m.key} className="group flex items-center justify-between gap-4 p-4 rounded-3xl border border-slate-200 bg-white transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className={` ${m.color} ${m.borderColor} border rounded-3xl w-14 h-14 flex items-center justify-center overflow-hidden shrink-0`}>
+                  <img src={m.image} alt={m.label} className="w-10 h-10 object-contain" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 truncate">{m.label}</p>
+                  <p className="text-xs text-slate-500 truncate">{moodTips[m.key]}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-slate-500">This week</p>
+                <p className="text-lg font-bold text-slate-900">{week}</p>
+              </div>
+              <div className={`text-xs font-semibold flex items-center gap-1 ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
+                {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                {Math.abs(Math.round(trend))}%
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

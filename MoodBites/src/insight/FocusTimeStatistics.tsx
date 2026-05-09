@@ -25,32 +25,39 @@ const focusTimeData: MoodData[] = [
 ];
 
 return (
-    <div
-      style={{
-        background: "white",
-        borderRadius: "20px",
-        padding: "20px",
-        boxShadow: "0 4px 16px rgba(0,0,0,0.05)"
-      }}
-    >
-      <h3 style={{ marginBottom: "12px" }}>Focus time weekly</h3>
+    <div>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={focusTimeData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+          <CartesianGrid stroke="rgb(226, 232, 240)" strokeDasharray="3 3" />
 
-      <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={focusTimeData}>
-          <CartesianGrid stroke="#f0efeb" strokeDasharray="3 3" />
+          <XAxis 
+            dataKey="day" 
+            stroke="rgb(148, 163, 184)"
+            style={{ fontSize: '12px', fontWeight: 500 }}
+          />
+          <YAxis 
+            allowDecimals={false}
+            stroke="rgb(148, 163, 184)"
+            style={{ fontSize: '12px', fontWeight: 500 }}
+            label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
+          />
 
-          <XAxis dataKey="day" />
-          <YAxis allowDecimals={false} />
-
-          <Tooltip />
+          <Tooltip 
+            contentStyle={{
+              backgroundColor: 'white',
+              border: '1px solid rgb(226, 232, 240)',
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            }}
+          />
 
           <Line
             type="monotone"
             dataKey="count"
-            stroke="var(--color-brand-accent)"
-            strokeWidth={4}
-            dot={{ r: 5 }}
-            activeDot={{ r: 7 }}
+            stroke="rgb(168, 85, 247)"
+            strokeWidth={3}
+            dot={{ fill: 'rgb(168, 85, 247)', r: 5 }}
+            activeDot={{ r: 7, fill: 'rgb(147, 51, 234)' }}
           />
         </LineChart>
       </ResponsiveContainer>

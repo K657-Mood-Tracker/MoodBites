@@ -1,203 +1,71 @@
-.chart-container {
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-}
-
-.insights-layout {
-  display: grid;
-  grid-template-rows: auto auto auto;
-  gap: 30px;
-  padding: 30px;
-}
-
-/* TOP */
-.top-section {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 30px;
-  align-items: start;
-}
-
-.left-top {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* RIGHT SIDE  */
-.right-top {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* BOTTOM */
-.bottom-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-}
-
-/* charts side by side */
-.charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  align-items: stretch;
-}
-
-
-.card,
-.calendar-card {
-  height: auto;
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-}
-
-
-.chart-title {
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-.mood-table-wrapper,
-.habit-table-wrapper {
-  flex: 1;
-  min-width: 320px;
-  max-width: 500px;
-}
-.mood-table-wrapper h2,
-.habit-table-wrapper h2{
-  margin-bottom: 10px;
-  color: #4b3f72;
-}
-
-/* Habit counter styles */
-.habit-table-wrapper {
-  max-width: 700px;
-  margin: 40px auto;
-}
-
-.habit-table {
+.mood-stats-container {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  border-radius: 18px;
-  overflow: hidden;
-  background: white;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
 }
 
-.habit-table thead {
-  background: var(--color-brand-soft);
+.mood-stats-container .flex {
+  display: flex;
 }
 
-.habit-table th {
-  padding: 12px;
-  text-align: center;
-  font-weight: 600;
+.mood-stats-container .flex > * + * {
+  margin-left: 0.75rem;
 }
 
-.habit-table td {
-  padding: 12px;
-  text-align: center;
-  border-top: 1px solid #eee;
-}
-
-.habit-name {
-  text-align: left;
-  background: var(--color-mood-6);
-  font-weight: 500;
-}
-
-.habit-cell {
-  font-size: 18px;
-}
-
-.habit-total {
-  font-weight: 600;
-  color: var(--color-brand-accent);
-}
-
-.habit-table tbody tr:hover {
-  background: rgba(167,139,250,0.08);
-}
-
-/* Mood calender styles */
-.calendar-wrapper{
+.habit-insights-container {
   width: 100%;
-  /*margin: 40px auto;*/
+}
+
+.session-mood-container {
+  width: 100%;
+}
+
+.calendar-wrapper {
+  width: 100%;
+}
+
+.calendar-day-empty {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  background: transparent;
 }
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
 }
 
-.calendar-day{
+.calendar-day {
   width: 100%;
-  aspect-ratio:1;
-  border-radius:10px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:14px;
-  font-weight:500;
-  background:#f5f5f5;
-  transition:0.2s;
-}
-
-.calendar-day:hover{
-  transform:scale(1.05);
-}
-
-/* Mood counter styles */
-.mood-table-wrapper {
-  max-width: 650px;
-  margin: auto;
-}
-
-.mood-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  aspect-ratio: 1;
   border-radius: 18px;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgb(248, 250, 252);
+  border: 1px solid rgb(226, 232, 240);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+  color: rgb(30, 41, 59);
+}
+
+.calendar-day:hover {
+  transform: translateY(-2px);
+  border-color: rgb(99, 102, 241);
+  box-shadow: 0 16px 32px rgba(99, 102, 241, 0.12);
+  background: rgb(255, 255, 255);
+}
+
+/* Color utilities for Tailwind */
+.chart-container {
   background: white;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-  background: white;
-  border: 1px solid #eee;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgb(226, 232, 240);
 }
-
-.mood-table thead {
-  background: var(--color-brand-soft);
-}
-
-.mood-table th {
-  padding: 14px;
-  text-align: left;
-}
-
-.mood-table td {
-  padding: 14px;
-  border-top: 1px solid #eee;
-}
-
-.mood {
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.mood-1 { background: var(--color-mood-1); }
-.mood-2 { background: var(--color-mood-2); }
-.mood-3 { background: var(--color-mood-3); }
-.mood-4 { background: var(--color-mood-4); }
-.mood-5 { background: var(--color-mood-5); }
-.mood-6 { background: var(--color-mood-6); }
 
 .mood-table tbody tr:hover {
   background: rgba(167,139,250,0.08);
