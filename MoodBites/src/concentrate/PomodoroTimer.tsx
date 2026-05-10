@@ -3,12 +3,14 @@ import { Play, Pause, RotateCcw, Zap } from "lucide-react";
 
 interface PomodoroTimerProps {
   onSessionComplete: (duration: number) => void;
+  onSessionStart?: () => void;
   isDeepWork: boolean;
   setIsDeepWork: (val: boolean) => void;
 }
 
 const PomodoroTimer: React.FC<PomodoroTimerProps> = ({ 
-  onSessionComplete, 
+  onSessionComplete,
+  onSessionStart,
   isDeepWork, 
   setIsDeepWork 
 }) => {
@@ -41,7 +43,12 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     }
   };
 
-  const toggleTimer = () => setIsActive(!isActive);
+  const toggleTimer = () => {
+    if (!isActive && mode === "work") {
+      onSessionStart?.();
+    }
+    setIsActive(!isActive);
+  };
 
   const resetTimer = () => {
     setIsActive(false);

@@ -68,6 +68,9 @@ app.use('/api/session-mood', sessionMoodRoute);
 const journalRoute = require('./routes/api/journal');
 app.use('/api/journal', journalRoute);
 
+const focusSessionRoute = require('./routes/api/focusSession');
+app.use('/api/focus-sessions', focusSessionRoute);
+
 const PORT = process.env.PORT || 3000;
 
 db.sequelize.sync().then(() => {
