@@ -1,14 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
-import Header from './components/Header'
+import AuthenticatedShell from './components/AuthenticatedShell'
+import ProtectedRoute from './components/ProtectedRoute'
 import PublicShell from './components/PublicShell'
 import FocusHub from './concentrate/FocusHub'
 import Insights from './insight/Insights'
 import Dashboard from './dashboard/Dashboard'
 import LoginScreen from './auth-screens/LoginScreen'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import RegisterScreen from './auth-screens/RegisterScreen'
-import { useAuth } from './context/AuthContext'
 import LandingPage from './LandingPage'
 //import test from './insight/test'
 
@@ -17,10 +17,9 @@ const RootRedirect = () => {
 
   if (isAuthenticated) {
     return (
-      <>
-        <Header />
+      <AuthenticatedShell>
         <Dashboard />
-      </>
+      </AuthenticatedShell>
     );
   }
 
@@ -48,29 +47,43 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/insights" element={
-            <>
-              <Header />
-              <Insights />
-            </>
-          } />
+          <Route
+            path="/insights"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedShell>
+                  <Insights />
+                </AuthenticatedShell>
+              </ProtectedRoute>
+            }
+          />
           <Route path="/" element={<RootRedirect />} />
-          <Route path="/concentrate" element={
-            <>
-              <Header />
-              <FocusHub />
-            </>
-          } />
-          <Route path="/login" element={
-            <PublicShell>
-              <LoginScreen />
-            </PublicShell>
-          } />
-          <Route path="/register" element={
-            <PublicShell>
-              <RegisterScreen />
-            </PublicShell>
-          } />
+          <Route
+            path="/concentrate"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedShell>
+                  <FocusHub />
+                </AuthenticatedShell>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicShell>
+                <LoginScreen />
+              </PublicShell>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicShell>
+                <RegisterScreen />
+              </PublicShell>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>
