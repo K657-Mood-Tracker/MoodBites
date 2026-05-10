@@ -34,6 +34,7 @@ function LoginScreen() {
             return data;
         })
         .then(data => {
+            console.log('Login response', data);
             if (data?.token) {
                 login(data.token, data.user);
                 navigate("/");

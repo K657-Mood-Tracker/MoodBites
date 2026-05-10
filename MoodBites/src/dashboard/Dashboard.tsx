@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import { CheckSquare, Droplets, Dumbbell, Book, Brain } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import MotivationalQuote from './MotivationalQuote';
 import MoodLog from './MoodLog';
 import HabitsTracker from './HabitsTracker';
@@ -41,6 +42,7 @@ type Habit = {
 };
 
 const Dashboard: React.FC = () => {
+  const { user } = useAuth();
   const [selectedMood, setSelectedMood] = React.useState<string | null>(null);
   const [habitList, setHabitList] = React.useState<Habit[]>([]);
 
@@ -57,6 +59,12 @@ const Dashboard: React.FC = () => {
     return day === 0 ? 6 : day - 1; // 0=Monday, 6=Sunday
   })();
   const journalKey = selectedMood ? `${selectedMood}-${today}` : null;
+
+  const displayName =
+    user?.username ||
+    user?.name ||
+    user?.email?.split('@')[0] ||
+    'there';
 
   const moodImageMap: { [mood: string]: string } = {
     Angry: angryImg,

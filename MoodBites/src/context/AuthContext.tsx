@@ -16,22 +16,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        const apiUrl = import.meta.env.VITE_BACKEND_URL;
+        const apiUrl = import.meta.env.VITE_BACKEND_URL || '';
+        const verifyUrl = apiUrl ? `${apiUrl}/api/verify-token` : '/api/verify-token';
 
         if (token) {
-            fetch(`${apiUrl}/verify-token`, {
+            console.log('AuthContext verify-token request to', verifyUrl);
+            fetch(verifyUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 }
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data) {
-                setIsAuthenticated(true);
-                setUser(data.user);
+            .then(async res => {
+                const data = await res.json().catch(() => null);
+                if (!res.ok) {
+                    console.warn('AuthContext verify-token failed', res.status, data);
+                    throw new Error(data?.message || 'Verify token failed');
                 }
+                return data;
+            })
+            .then(data => {
+                console.log('AuthContext verify-token response', data);
+                if (data?.user) {
+                    setIsAuthenticated(true);
+                    setUser(data.user);
+                } else {
+                    setIsAuthenticated(false);
+                    setUser(null);
+                }
+            })
+            .catch(error => {
+                console.error('AuthContext verify-token error:', error);
+                setIsAuthenticated(false);
+                setUser(null);
             })
             .finally(() => setLoading(false));
         } else {
@@ -42,6 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = (token: string, userData: any) => {
+        console.log('AuthContext login userData', userData);
         localStorage.setItem('token', token);
         setIsAuthenticated(true);
         setUser(userData);

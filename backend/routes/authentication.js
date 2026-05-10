@@ -21,8 +21,13 @@ router.post('/register', async (req, res) => {
         const newUser = await db.User.create({ username, email, password_hash });
 
         const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const userPayload = {
+            id: newUser.id,
+            username: newUser.username,
+            email: newUser.email,
+        };
 
-        res.status(200).json({ token });
+        res.status(200).json({ token, user: userPayload });
     } catch (error) {
         console.error('Error during registration:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -46,7 +51,12 @@ router.post('/login', async (req, res) => {
         }
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
+        const userPayload = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+        };
+        res.status(200).json({ token, user: userPayload });
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ message: 'Internal server error' });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 
 import angryImg from "../images/angry.png";
 import excitedImg from "../images/excited.png";
@@ -42,11 +43,21 @@ interface MoodLogProps {
 }
 
 const MoodLog: React.FC<MoodLogProps> = ({ selectedMood, onSelectMood, completion }) => {
+  const { user } = useAuth();
+  console.log('MoodLog AUTH USER:', user);
+  const displayName =
+    user?.username ||
+    user?.name ||
+    user?.email?.split('@')[0] ||
+    'there';
+
   return (
     <section className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200 mb-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 text-left">Heyy, Alex! How are you feeling today?</h1>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 text-left">
+            Heyy, <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">{displayName}</span>! How are you feeling today?
+          </h1>
           <p className="mt-2 text-lg text-left font-medium text-slate-500">Pick a flavor that matches your mood</p>
         </div>
         <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-2 shadow-sm">

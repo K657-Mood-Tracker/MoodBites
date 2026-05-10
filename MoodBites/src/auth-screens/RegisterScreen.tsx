@@ -33,6 +33,7 @@ function RegisterScreen() {
             return res.json();
         })
         .then(data => {
+            console.log('Register response', data);
             if (data.token) {
                 login(data.token, data.user);
             }

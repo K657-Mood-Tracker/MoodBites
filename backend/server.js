@@ -36,8 +36,21 @@ app.get('/about', authenticateToken(), (req, res) => {
   res.send('This is the about page.');
 });
 
-app.post('/verify-token', authenticateToken(), (req, res) => {
-  res.json({ message: 'Token is valid', user: req.user });
+app.post('/api/verify-token', authenticateToken(), async (req, res) => {
+  try {
+    const user = await db.User.findByPk(req.user.id, {
+      attributes: ['id', 'username', 'email']
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Token is valid', user });
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 /* const demoUsersRoute = require('./routes/api/demo-users');
