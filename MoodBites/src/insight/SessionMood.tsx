@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Smile, Meh, Frown, Angry, Heart, TrendingUp, TrendingDown } from "lucide-react";
 
 type Mood = {
@@ -17,28 +17,83 @@ const moods: Mood[] = [
 
 type Session = {
   id: number;
-  before: number;
-  after: number;
-  durationMinutes: number;
+  beforeMood: string | null;
+  afterMood: string | null;
+  focusTime: number;
+  improvement: string | null;
 };
 
-const sessions: Session[] = [
-  { id: 1, before: 2, after: 4, durationMinutes: 35 },
-  { id: 2, before: 3, after: 5, durationMinutes: 45 },
-  { id: 3, before: 1, after: 3, durationMinutes: 28 },
-];
+const getMoodByLabel = (label: string) => moods.find((m) => m.label === label);
 
-const getMood = (value: number) => moods.find((m) => m.value === value);
-
-const getImprovement = (before: number, after: number) => {
-  return after > before ? 'positive' : after < before ? 'negative' : 'neutral';
+const getImprovement = (improvement: string | null) => {
+  return improvement === 'improved' ? 'positive' : improvement === 'declined' ? 'negative' : 'neutral';
 };
 
 const SessionMood: React.FC = () => {
-  const totalMinutes = sessions.reduce((sum, session) => sum + session.durationMinutes, 0);
+  console.log("SessionMood component rendering");
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log("SessionMood component mounted, starting fetch...");
+    const fetchSessionMoods = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const apiUrl = import.meta.env.VITE_BACKEND_URL;
+        
+        console.log("Token found:", !!token);
+        console.log("API URL:", apiUrl);
+        
+        if (!token) {
+          console.warn("No authentication token found");
+          setSessions([]);
+          return;
+        }
+
+        console.log("Making API call to:", `${apiUrl}/api/session-mood/sessions`);
+        const res = await fetch(`${apiUrl}/api/session-mood/sessions`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log("API response status:", res.status);
+        
+        if (!res.ok) {
+          throw new Error(`Failed to fetch session moods: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("Session mood data:", data);
+
+        if (Array.isArray(data)) {
+          setSessions(data);
+        } else {
+          console.error("API did not return an array:", data);
+          setSessions([]);
+        }
+
+      } catch (err) {
+        console.error("Failed to fetch session moods:", err);
+        setSessions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessionMoods();
+  }, []);
+
+  const totalMinutes = sessions.reduce((sum, session) => sum + session.focusTime, 0);
   const totalHours = Math.floor(totalMinutes / 60);
   const remainingMinutes = totalMinutes % 60;
-  const improvedSessions = sessions.filter((session) => session.after > session.before).length;
+  const improvedSessions = sessions.filter((session) => session.improvement === 'improved').length;
+
+  if (loading) {
+    return <div className="text-center py-8">Loading session moods...</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -61,9 +116,9 @@ const SessionMood: React.FC = () => {
 
       <div className="space-y-3">
         {sessions.map((session) => {
-          const beforeMood = getMood(session.before);
-          const afterMood = getMood(session.after);
-          const improvement = getImprovement(session.before, session.after);
+          const beforeMood = getMoodByLabel(session.beforeMood || '');
+          const afterMood = getMoodByLabel(session.afterMood || '');
+          const improvement = getImprovement(session.improvement);
           const improvementText = improvement === 'positive' ? 'Improved' : improvement === 'negative' ? 'Decreased' : 'Same';
           const improvementColor = improvement === 'positive' ? 'text-emerald-600 bg-emerald-100' : improvement === 'negative' ? 'text-rose-600 bg-rose-100' : 'text-slate-600 bg-slate-100';
 
@@ -72,15 +127,27 @@ const SessionMood: React.FC = () => {
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-3xl bg-slate-100 grid place-items-center text-sm font-semibold text-slate-700">#{session.id}</div>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="rounded-3xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700 flex items-center gap-2">
-                    {beforeMood?.icon && <beforeMood.icon size={14} />}
-                    {beforeMood?.label}
-                  </div>
+                  {beforeMood ? (
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700 flex items-center gap-2">
+                      <beforeMood.icon size={14} />
+                      {beforeMood.label}
+                    </div>
+                  ) : (
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-400">
+                      No data
+                    </div>
+                  )}
                   <span className="text-slate-300 text-lg">→</span>
-                  <div className="rounded-3xl border border-emerald-200 bg-emerald-100 px-3 py-2 text-emerald-700 flex items-center gap-2 text-sm">
-                    {afterMood?.icon && <afterMood.icon size={14} />}
-                    {afterMood?.label}
-                  </div>
+                  {afterMood ? (
+                    <div className="rounded-3xl border border-emerald-200 bg-emerald-100 px-3 py-2 text-emerald-700 flex items-center gap-2 text-sm">
+                      <afterMood.icon size={14} />
+                      {afterMood.label}
+                    </div>
+                  ) : (
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-400">
+                      No data
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -91,7 +158,7 @@ const SessionMood: React.FC = () => {
                   <span>{improvementText}</span>
                 </div>
                 <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-slate-500">
-                  {session.durationMinutes} min
+                  {session.focusTime} min
                 </div>
               </div>
             </div>

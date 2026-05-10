@@ -8,7 +8,7 @@ const authenticateToken = require('./middlewares/verifyJWT');
 const authRoutes = require('./routes/authentication');
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: true, // Allow all origins for debugging
   credentials: true
 }));
 
@@ -48,6 +48,9 @@ app.use('/api/mood', moodRoute);
 
 const habitsRoute = require('./routes/api/habits');
 app.use('/api/habits', habitsRoute);
+
+const sessionMoodRoute = require('./routes/api/sessionMood');
+app.use('/api/session-mood', sessionMoodRoute);
 
 const journalRoute = require('./routes/api/journal');
 app.use('/api/journal', journalRoute);

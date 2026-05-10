@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
     rest_time: { type: DataTypes.INTEGER, allowNull: false },
     total_focus: { type: DataTypes.INTEGER, allowNull: false },
     deep_focus: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    before_mood: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    after_mood: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
   }, {
     sequelize,
     modelName: 'Focus_Session',
