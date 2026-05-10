@@ -1,7 +1,6 @@
 import "./styles.css";
 import { useState, useEffect } from "react";
 
-type Mood = "happy" | "calm" | "neutral" | "sad" | "tired" | "angry";
 
 type MoodEntry = {
   date: string;

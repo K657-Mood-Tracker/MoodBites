@@ -8,13 +8,6 @@ const habitIconMap = {
   Brain
 };
 
-const initialHabits = [
-  { name: 'Drink Water', days: [true, true, false, true, false, true, false], icon: 'Droplets' },
-  { name: 'Exercise', days: [false, true, true, false, true, false, true], icon: 'Dumbbell' },
-  { name: 'Read', days: [true, true, true, false, false, true, false], icon: 'Book' },
-  { name: 'Meditate', days: [true, false, true, true, true, false, true], icon: 'Brain' }
-];
-
 type Habit = {
   name: string;
   days: boolean[];
@@ -24,34 +17,59 @@ type Habit = {
 const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export default function HabitTable() {
-  const [habitList, setHabitList] = React.useState<Habit[]>(() => {
-    const saved = localStorage.getItem('habitList');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialHabits;
-      }
-    }
-    return initialHabits;
-  });
+  const [habitList, setHabitList] = React.useState<Habit[]>([]);
 
   React.useEffect(() => {
-    localStorage.setItem('habitList', JSON.stringify(habitList));
-  }, [habitList]);
+    const fetchHabits = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const apiUrl = import.meta.env.VITE_BACKEND_URL;
+        
+        if (!token) {
+          console.warn("No authentication token found");
+          setHabitList([]);
+          return;
+        }
+
+        const res = await fetch(`${apiUrl}/api/habits/history`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch habits: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        console.log("Habit data:", data);
+
+        if (Array.isArray(data)) {
+          setHabitList(data);
+        } else {
+          console.error("API did not return an array:", data);
+          setHabitList([]);
+        }
+
+      } catch (err) {
+        console.error("Failed to fetch habits:", err);
+        setHabitList([]);
+      }
+    };
+
+    fetchHabits();
+  }, []);
 
   const toggleHabit = (habitIndex: number, dayIndex: number) => {
-    setHabitList((prev) => {
-      const next = [...prev];
-      const days = [...next[habitIndex].days];
-      days[dayIndex] = !days[dayIndex];
-      next[habitIndex] = { ...next[habitIndex], days };
-      return next;
-    });
+    // Habits should only be toggled from the dashboard, not from insights
+    console.warn('Habit toggling is disabled in insights view. Please use the dashboard to manage habits.');
   };
 
-  const totalDone = habitList.reduce((acc, habit) => acc + habit.days.filter(Boolean).length, 0);
-  const completion = habitList.length ? Math.round((totalDone / (habitList.length * 7)) * 100) : 0;
+  const totalDone = Array.isArray(habitList) ? habitList.reduce((acc, habit) => acc + habit.days.filter(Boolean).length, 0) : 0;
+  const completion = Array.isArray(habitList) && habitList.length ? Math.round((totalDone / (habitList.length * 7)) * 100) : 0;
 
   return (
     <div className="habit-insights-container">
@@ -65,12 +83,12 @@ export default function HabitTable() {
         </div>
         <div className="text-right">
           <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Total Done</p>
-          <p className="text-2xl font-bold text-slate-900">{totalDone}/{habitList.length * 7}</p>
+          <p className="text-2xl font-bold text-slate-900">{totalDone}/{Array.isArray(habitList) ? habitList.length * 7 : 0}</p>
         </div>
       </div>
 
       <div className="space-y-2">
-        {habitList.map((habit, hIndex) => {
+        {Array.isArray(habitList) && habitList.map((habit, hIndex) => {
           const completedCount = habit.days.filter(Boolean).length;
           const completionPct = Math.round((completedCount / 7) * 100);
 
@@ -86,18 +104,17 @@ export default function HabitTable() {
               
               <div className="flex gap-1.5">
                 {habit.days.map((done, dayIndex) => (
-                  <button
+                  <div
                     key={dayIndex}
-                    onClick={() => toggleHabit(hIndex, dayIndex)}
-                    className={`flex-1 h-8 rounded-md text-xs font-semibold transition flex items-center justify-center ${
+                    className={`flex-1 h-8 rounded-md text-xs font-semibold flex items-center justify-center ${
                       done 
-                        ? 'bg-emerald-500 text-white shadow-md hover:bg-emerald-600' 
-                        : 'bg-slate-200 text-slate-400 hover:bg-slate-300'
+                        ? 'bg-emerald-500 text-white' 
+                        : 'bg-slate-200 text-slate-400'
                     }`}
                     title={`${daysOfWeek[dayIndex]}: ${done ? 'Completed' : 'Not completed'}`}
                   >
                     {daysOfWeek[dayIndex]}
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

@@ -1,4 +1,5 @@
 const { Habit, Habit_Entry, User } = require('../models');
+const { Op } = require('sequelize');
 
 const getHabits = async (req, res) => {
     try {
@@ -123,10 +124,74 @@ const deleteHabit = async (req, res) => {
     }
 };
 
+const getHabitHistory = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Calculate current week (Monday to Sunday) in local timezone
+        const today = new Date();
+        const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+        // Find Monday of current week
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
+        monday.setHours(0, 0, 0, 0); // Set to start of day
+
+        // Find Sunday of current week
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        sunday.setHours(23, 59, 59, 999); // Set to end of day
+
+        const habits = await Habit.findAll({
+            where: { userId },
+            include: [{
+                model: Habit_Entry,
+                required: false,
+                where: {
+                    date: {
+                        [Op.between]: [monday, sunday]
+                    }
+                }
+            }]
+        });
+
+        const result = habits.map(habit => {
+            const days = [false, false, false, false, false, false, false];
+
+            habit.Habit_Entries.forEach(entry => {
+                const entryDate = new Date(entry.date);
+                const daysDiff = Math.floor((entryDate - monday) / (1000 * 60 * 60 * 24));
+
+                // Only set days within this week (0-6)
+                if (daysDiff >= 0 && daysDiff <= 6) {
+                    days[daysDiff] = entry.status === "completed";
+                }
+            });
+
+            return {
+                id: habit.id,
+                name: habit.title,
+                days,
+                icon: "CheckSquare"
+            };
+        });
+
+        res.json(result);
+
+    } catch (error) {
+        console.error("Habit history error:", error);
+
+        res.status(500).json({
+            error: "Failed to fetch habit history"
+        });
+    }
+};
+
 module.exports = {
     getHabits,
     addHabit,
     toggleHabit,
     updateHabit,
-    deleteHabit
+    deleteHabit,
+    getHabitHistory
 };
