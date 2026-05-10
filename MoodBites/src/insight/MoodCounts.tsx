@@ -68,13 +68,39 @@ export default function MoodStatsTable() {
   const [moodLog, setMoodLog] = useState<MoodEntry[]>([]);
 
   useEffect(() => {
-    fetch("/api/mood/history")
-      .then((res) => res.json())
+    const token = localStorage.getItem('token');
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
+    if (!token) {
+      console.warn("No authentication token found for mood counts");
+      setMoodLog([]);
+      return;
+    }
+
+    fetch(`${apiUrl}/api/mood/history`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch mood history: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
-        setMoodLog(data);
+        if (Array.isArray(data)) {
+          setMoodLog(data);
+        } else {
+          console.error("Mood history API returned non-array:", data);
+          setMoodLog([]);
+        }
       })
       .catch((err) => {
         console.error("Failed to fetch mood history:", err);
+        setMoodLog([]);
       });
   }, []);
 

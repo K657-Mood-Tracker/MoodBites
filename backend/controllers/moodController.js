@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 const saveMood = async (req, res) => {
     try {
         const { mood } = req.body;
-        const userId = 1; // Assuming demo user
+        const userId = req.user.id;
         const today = new Date();
         const startOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
         const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
@@ -39,7 +39,7 @@ const saveMood = async (req, res) => {
 
 const getMood = async (req, res) => {
     try {
-        const userId = 1;
+        const userId = req.user.id;
         const today = new Date();
         const startOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
         const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
@@ -68,7 +68,7 @@ const getMood = async (req, res) => {
 
 const getMoodHistory = async (req, res) => {
     try {
-        const userId = 1;
+        const userId = req.user.id;
 
         const moodEntries = await Mood_Entry.findAll({
             where: { userId },
@@ -77,7 +77,7 @@ const getMoodHistory = async (req, res) => {
         });
 
         const formatted = moodEntries.map(entry => ({
-            date: entry.date,
+            date: entry.date.toISOString().split('T')[0],
             mood: entry.Mood_Types[0]?.label || null
         }));
 

@@ -1,31 +1,72 @@
 import "./styles.css";
+import { useState, useEffect } from "react";
 
 type Mood = "happy" | "calm" | "neutral" | "sad" | "tired" | "angry";
 
 type MoodEntry = {
   date: string;
-  mood: Mood;
+  mood: string;
 };
 
-const moodData: MoodEntry[] = [
-  { date: "2026-03-01", mood: "happy" },
-  { date: "2026-03-02", mood: "calm" },
-  { date: "2026-03-03", mood: "sad" },
-  { date: "2026-03-05", mood: "happy" },
-  { date: "2026-03-07", mood: "tired" },
-  { date: "2026-03-08", mood: "angry" }
-];
-
-const moodColors: Record<Mood, string> = {
-  happy: "var(--color-mood-1)",
-  calm: "var(--color-mood-6)",
-  neutral: "var(--color-mood-3)",
-  sad: "var(--color-mood-4)",
-  tired: "var(--color-mood-5)",
-  angry: "var(--color-mood-2)"
+const moodColors: Record<string, string> = {
+  happy: "#fef3c7", // yellow-100
+  calm: "#d1fae5", // emerald-100
+  neutral: "#dbeafe", // blue-100
+  sad: "#dbeafe", // blue-100
+  tired: "#f1f5f9", // slate-100
+  angry: "#fee2e2", // red-100
+  stressed: "#f1f5f9" // slate-100
 };
 
 export default function MoodCalendar() {
+  const [moodData, setMoodData] = useState<MoodEntry[]>([]);
+
+  useEffect(() => {
+    const fetchMoodHistory = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const apiUrl = import.meta.env.VITE_BACKEND_URL;
+        
+        if (!token) {
+          console.warn("No authentication token found");
+          setMoodData([]);
+          return;
+        }
+
+        const res = await fetch(`${apiUrl}/api/mood/history`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch mood history: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        console.log("Mood history data:", data);
+
+        if (Array.isArray(data)) {
+          setMoodData(data.map((entry) => ({
+            ...entry,
+            mood: String(entry.mood ?? '').toLowerCase()
+          })));
+        } else {
+          console.error("API did not return an array:", data);
+          setMoodData([]);
+        }
+
+      } catch (err) {
+        console.error("Failed to fetch mood history:", err);
+        setMoodData([]);
+      }
+    };
+
+    fetchMoodHistory();
+  }, []);
 
   const today = new Date();
   const year = today.getFullYear();
@@ -36,7 +77,8 @@ export default function MoodCalendar() {
 
   const getMood = (day: number) => {
     const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    return moodData.find(m => m.date === dateStr)?.mood;
+    const moodEntry = moodData.find(m => m.date === dateStr);
+    return moodEntry?.mood;
   };
 
   const days = [];
@@ -50,14 +92,15 @@ export default function MoodCalendar() {
 
   for (let i = 1; i <= daysInMonth; i++) {
     const mood = getMood(i);
+    const moodKey = mood?.toLowerCase();
 
     days.push(
       <div
         key={i}
         className="calendar-day"
         style={{
-          background: mood ? moodColors[mood] : "rgb(241, 245, 249)",
-          border: mood ? '2px solid rgba(0,0,0,0.05)' : '1px solid rgb(226, 232, 240)'
+          background: moodKey ? moodColors[moodKey] || "rgb(241, 245, 249)" : "rgb(241, 245, 249)",
+          border: moodKey ? '2px solid rgba(0,0,0,0.05)' : '1px solid rgb(226, 232, 240)'
         }}
         title={mood || 'No mood recorded'}
       >
