@@ -1,20 +1,88 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #a78bfa;
-  --color-brand-secondary: #c4b5fd;
-  --color-brand-soft: #ede9fe;
-  --color-brand-accent: #8759ff;
-  
-  /* Mood Pastels derived from image */
-  --color-mood-1: #fde2e4; /* Soft Pink */
-  --color-mood-2: #fad2e1; /* Soft Rose */
-  --color-mood-3: #fff1e6; /* Soft Peach */
-  --color-mood-4: #dfe7fd; /* Soft Lavender */
-  --color-mood-5: #f0efeb; /* Soft Greige */
-  --color-mood-6: #ddfff7; /* Soft Mint */
+  --color-public-bg: #ede3ff;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f8f2ff;
+  --color-surface-muted: #ede7fe;
+  --color-card-bg: #ffffff;
+  --color-border: rgba(124, 58, 237, 0.18);
+  --color-shadow: rgba(124, 58, 237, 0.12);
+  --color-brand-primary: #7c3aed;
+  --color-brand-secondary: #a78bfa;
+  --color-brand-strong: #5b21b6;
+  --color-brand-soft: rgba(124, 58, 237, 0.16);
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
 }
 
 :root {
-  background-color: #fcfcfd;
+  color-scheme: light;
+  background-color: var(--color-public-bg);
+}
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  background: radial-gradient(circle at top left, rgba(167, 139, 250, 0.16), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.12), transparent 24%),
+    var(--color-public-bg);
+}
+
+.public-shell {
+  background-color: transparent;
+}
+
+.public-header {
+  background-color: rgba(248, 242, 255, 0.95);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.public-footer {
+  background: linear-gradient(180deg, #5b21b6, #4338ca);
+  color: #f8fafc;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.public-footer h4,
+.public-footer span,
+.public-footer p,
+.public-footer li,
+.public-footer a {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.public-footer p {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.public-footer li {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.public-footer a {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+}
+
+.public-footer a:hover {
+  color: #ffffff;
+}
+
+.public-footer .footer-copy {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.public-card {
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 20px 50px var(--color-shadow);
+}
+
+.public-panel {
+  background-color: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
 }
