@@ -66,7 +66,31 @@ const getMood = async (req, res) => {
     }
 };
 
+const getMoodHistory = async (req, res) => {
+    try {
+        const userId = 1;
+
+        const moodEntries = await Mood_Entry.findAll({
+            where: { userId },
+            include: [{ model: Mood_Types }],
+            order: [['date', 'DESC']]
+        });
+
+        const formatted = moodEntries.map(entry => ({
+            date: entry.date,
+            mood: entry.Mood_Types[0]?.label || null
+        }));
+
+        res.json(formatted);
+    } catch (error) {
+        console.error('Error fetching mood history:', error);
+        res.status(500).json({ error: 'Failed to fetch mood history' });
+    }
+};
+
+
 module.exports = {
     saveMood,
-    getMood
+    getMood,
+    getMoodHistory
 };

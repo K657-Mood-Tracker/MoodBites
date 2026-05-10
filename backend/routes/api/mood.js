@@ -4,5 +4,7 @@ const moodController = require('../../controllers/moodController');
 
 router.post('/save', moodController.saveMood);
 router.get('/current', moodController.getMood);
+router.get('/history', moodController.getMoodHistory);
+
 
 module.exports = router;
