@@ -5,7 +5,7 @@ const { Op } = require('sequelize');
 const saveJournal = async (req, res) => {
     try {
         const { content, mood } = req.body;
-        const userId = 1; // Assuming demo user
+        const userId = req.user.id; // Use authenticated user ID
         const today = new Date();
         const startOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
         const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
@@ -65,7 +65,7 @@ const saveJournal = async (req, res) => {
 
 const getJournal = async (req, res) => {
     try {
-        const userId = 1;
+        const userId = req.user.id; // Use authenticated user ID
         const { mood } = req.query; // Get mood from query parameter
         const today = new Date();
         const startOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));

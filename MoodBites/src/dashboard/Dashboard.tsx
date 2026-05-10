@@ -198,9 +198,13 @@ const Dashboard: React.FC = () => {
   const saveJournal = async () => {
     if (!selectedMood || !journalText.trim()) return;
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/journal/save', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ content: journalText, mood: selectedMood }),
       });
       if (response.ok) {
@@ -223,10 +227,12 @@ const Dashboard: React.FC = () => {
 
   const saveMoodToDB = async (mood: string) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:3000/api/mood/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ mood }),
       });
@@ -240,7 +246,13 @@ const Dashboard: React.FC = () => {
 
   const loadMoodFromDB = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/mood/current');
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/api/mood/current', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         if (data.mood) {
@@ -294,13 +306,24 @@ const Dashboard: React.FC = () => {
 
   const loadJournalFromDB = async () => {
     try {
+      const token = localStorage.getItem('token');
       // First load the current mood
-      const moodResponse = await fetch('http://localhost:3000/api/mood/current');
+      const moodResponse = await fetch('http://localhost:3000/api/mood/current', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (moodResponse.ok) {
         const moodData = await moodResponse.json();
         if (moodData.mood) {
           // Then load the journal for that mood
-          const response = await fetch(`http://localhost:3000/api/journal/current?mood=${encodeURIComponent(moodData.mood)}`);
+          const response = await fetch(`http://localhost:3000/api/journal/current?mood=${encodeURIComponent(moodData.mood)}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
           if (response.ok) {
             const data = await response.json();
             if (data.content) {
