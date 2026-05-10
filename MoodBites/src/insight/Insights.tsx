@@ -9,7 +9,7 @@ import { TrendingUp } from "lucide-react";
 
 const Insights: React.FC = () => {
   return (
-    <main className="min-h-screen bg-slate-50/50 px-6 py-12">
+    <main className="w-full px-6 py-12">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}

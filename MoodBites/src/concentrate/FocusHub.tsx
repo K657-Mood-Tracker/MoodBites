@@ -26,8 +26,8 @@ const FocusHub: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen ${isDeepWork ? 'bg-slate-950 text-slate-100' : 'bg-indigo-50/30'}`}>
-      <main className="max-w-7xl mx-auto px-6 py-12">
+    <main className={isDeepWork ? 'min-h-screen bg-slate-950 text-slate-100' : 'w-full'} style={!isDeepWork ? { backgroundColor: 'transparent' } : {}}>
+      <div className="max-w-7xl mx-auto px-6 py-12">
         
         {/* Hub Header Section */}
         <section className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
@@ -96,8 +96,8 @@ const FocusHub: React.FC = () => {
           </div>
         </div>
 
-      </main>
-    </div>
+      </div>
+    </main>
   );
 };
 

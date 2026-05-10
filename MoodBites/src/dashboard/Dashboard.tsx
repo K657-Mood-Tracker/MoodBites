@@ -315,8 +315,8 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 via-white to-slate-100 text-slate-800">
-      <main className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+    <main className="w-full px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <MoodLog selectedMood={selectedMood} onSelectMood={handleSelectMood} completion={completion} />
 
         <MotivationalQuote currentQuote={currentQuote} onChangeQuote={changeQuote} />
@@ -348,8 +348,8 @@ const Dashboard: React.FC = () => {
             journalMoodImage={journalMoodImage}
           />
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 };
 
